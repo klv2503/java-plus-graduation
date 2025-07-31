@@ -1,13 +1,9 @@
 services:
-  stats-server:
-    build: stat/stats-server
-    container_name: stats-server
+  eureka-server:
+    build: ./infra/discovery-server
+    container_name: eureka-server
     ports:
-      - "9090:9090"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm-stats
-      SPRING_DATASOURCE_USERNAME: stat
-      SPRING_DATASOURCE_PASSWORD: stat
+      - "8761:8761"
 
   stats-db:
     image: postgres:16.1
@@ -19,21 +15,11 @@ services:
       POSTGRES_PASSWORD: stat
       POSTGRES_DB: ewm-stats
     healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      test: ["CMD", "pg_isready", "-q", "-d", "ewm-stats", "-U", "stat"]
       interval: 5s
       retries: 10
       timeout: 5s
 
-  ewm-service:
-    build: ewm-service
-    container_name: ewm-service
-    ports:
-      - "8080:8080"
-    environment:
-      CLIENT_URL: http://stats-server:9090
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-database
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
 
   ewm-db:
     container_name: ewm-db
@@ -45,7 +31,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      test: ["CMD", "pg_isready", "-q", "-d", "ewm-database", "-U", "user"]
       interval: 5s
       retries: 10
       timeout: 5s
