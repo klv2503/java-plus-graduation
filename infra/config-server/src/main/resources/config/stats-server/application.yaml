@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: stats-server
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:6542/ewm-stats}
+    username: ${DATABASE_USERNAME:stat}
+    password: ${DATABASE_PASSWORD:stat}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 0
+
+logging:
+  level:
+    ru.practicum: TRACE
+    org:
+      springframework: ERROR
