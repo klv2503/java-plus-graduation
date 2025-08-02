@@ -10,7 +10,6 @@ spring:
       discovery:
         locator:
           enabled: true
-          lower-case-service-id: true
 
       routes:
         - id: main_service_route

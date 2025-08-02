@@ -80,18 +80,6 @@
             <classifier>jakarta</classifier>
             <version>5.1.0</version>
         </dependency>
-        <!-- две зависимости для MapStruct-->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.6.0.Beta2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.6.0.Beta2</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!--Для тестирования в памяти-->
         <dependency>
@@ -103,14 +91,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
         </dependency>
 
         <dependency>
