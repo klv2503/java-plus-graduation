@@ -34,8 +34,10 @@ public class ClientController {
                 LocalDateTime.now()
         );
 
-        RestClient restClient = buildClient("/hit", Map.of());
+        URI fullUri = buildUri("/hit", Map.of());
+        RestClient restClient = RestClient.create();
         restClient.post()
+                .uri(fullUri)
                 .body(dto)
                 .retrieve()
                 .toBodilessEntity();
@@ -52,8 +54,10 @@ public class ClientController {
         params.put("uris", String.join(",", uris));
         params.put("unique", String.valueOf(unique));
         // Выполняем запрос и получаем коллекцию объектов ReadEndpointHitDto
-        RestClient restClient = buildClient("/stats", params);
+        URI fullUri = buildUri("/stats", params);
+        RestClient restClient = RestClient.create();
         ResponseEntity<Collection<ReadEndpointHitDto>> response = restClient.get()
+                .uri(fullUri)
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -73,15 +77,17 @@ public class ClientController {
 
         log.info("\nClientController.saveHitsGroup many {}", manyEndPointDto);
 
-        RestClient restClient = buildClient("/hit/group", Map.of());
+        URI fullUri = buildUri("/hit/group", Map.of());
+        RestClient restClient = RestClient.create();
         restClient.post()
+                .uri(fullUri)
                 .body(manyEndPointDto)
                 .retrieve()
                 .toBodilessEntity();
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    private RestClient buildClient(String path, Map<String, String> queryParams) {
+    private URI buildUri(String path, Map<String, String> queryParams) {
         URI baseUri = serviceUriResolver.getBaseUri(SERVICE_NAME);
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance()
@@ -93,12 +99,7 @@ public class ClientController {
         queryParams.forEach(uriBuilder::queryParam);
 
         URI fullUri = uriBuilder.build().toUri();
-
-        return RestClient.builder()
-                .baseUrl(fullUri.toString())
-                .build();
+        log.info("\nResolved full URI for stats-service: {}", fullUri);
+        return fullUri;
     }
 }
-
-
-

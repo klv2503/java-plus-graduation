@@ -13,7 +13,28 @@ spring:
           lower-case-service-id: true
 
       routes:
-        - id: main-service
+        - id: main_service_route
           uri: lb://main-service
           predicates:
             - Path=/**
+
+    loadbalancer:
+      cache:
+        ttl: 5s  # Быстрое обновление списка сервисов из Eureka
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  health:
+    readinessState:
+      enabled: true
+    livenessState:
+      enabled: true

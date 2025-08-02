@@ -2,9 +2,12 @@ spring:
   application:
     name: main-service
   config:
-    import: "optional:configserver:"
+    import: "configserver:"
   cloud:
     config:
+      fail-fast: true
+      retry:
+        useRandomPolicy: true
       discovery:
         enabled: true
         serviceId: config-server
