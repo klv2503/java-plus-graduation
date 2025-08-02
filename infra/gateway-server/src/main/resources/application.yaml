@@ -11,7 +11,8 @@ spring:
       retry:
         # используем случайный backoff между попытками
         useRandomPolicy: true
-        # максимальный интервал, в течение которого делаем попытки (6000 миллисекунд = 6 сек)        max-interval: 6000
+        # максимальный интервал, в течение которого делаем попытки (6000 миллисекунд = 6 сек)
+        max-interval: 6000
       discovery:
         enabled: true
         serviceId: config-server
