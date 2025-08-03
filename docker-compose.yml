@@ -1,10 +1,4 @@
 services:
-  eureka-server:
-    build: ./infra/discovery-server
-    container_name: eureka-server
-    ports:
-      - "8761:8761"
-
   stats-db:
     image: postgres:16.1
     container_name: postgres-ewm-stats-db
