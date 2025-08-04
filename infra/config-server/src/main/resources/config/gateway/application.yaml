@@ -16,3 +16,7 @@ spring:
           uri: lb://main-service
           predicates:
             - Path=/categories/**,/admin/**,/users/**,/events/**,/compilations/**
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.server.HttpServer: DEBUG
