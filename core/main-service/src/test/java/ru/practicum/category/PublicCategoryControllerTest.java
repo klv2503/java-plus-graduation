@@ -2,7 +2,6 @@ package ru.practicum.category;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -11,12 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.practicum.MainService;
 import ru.practicum.category.controller.PublicCategoryController;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.GetCategoriesParams;
@@ -30,8 +28,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PublicCategoryController.class)
-@ContextConfiguration(classes = MainService.class)
-@RequiredArgsConstructor
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class PublicCategoryControllerTest {
 
     @Autowired
@@ -40,7 +37,8 @@ public class PublicCategoryControllerTest {
     @MockBean
     private CategoryService categoryService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private final CategoryDto goodCat1 = CategoryDto.builder()
             .id(1L)

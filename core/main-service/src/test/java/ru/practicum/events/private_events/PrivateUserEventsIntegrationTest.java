@@ -1,14 +1,12 @@
 package ru.practicum.events.private_events;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.MainService;
 import ru.practicum.category.service.CategoryServiceImpl;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
@@ -28,11 +26,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(properties = "classpath:application-test.properties",
-        classes = MainService.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Transactional(readOnly = true)
 @Rollback(value = false)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class PrivateUserEventsIntegrationTest {
     @Autowired
     private PrivateUserEventService privateUserEventService;

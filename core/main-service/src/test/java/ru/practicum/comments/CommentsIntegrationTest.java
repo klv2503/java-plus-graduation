@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.comments.model.Comment;
 import ru.practicum.comments.model.CommentsStatus;
@@ -12,12 +12,12 @@ import ru.practicum.comments.repository.CommentRepository;
 import ru.practicum.comments.service.CommentService;
 import ru.practicum.errors.AccessDeniedException;
 import ru.practicum.errors.ForbiddenActionException;
-import ru.practicum.events.service.PublicEventsServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = "classpath:application-test.properties")
+@SpringBootTest
 @Transactional
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class CommentsIntegrationTest {
 
     @Autowired

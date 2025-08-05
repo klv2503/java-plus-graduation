@@ -3,13 +3,10 @@ package ru.practicum.events;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.MainService;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.config.DateConfig;
@@ -22,7 +19,6 @@ import ru.practicum.events.model.Location;
 import ru.practicum.events.model.StateEvent;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.events.service.AdminEventService;
-import ru.practicum.events.service.PublicEventsServiceImpl;
 import ru.practicum.events.validation.AdminEventValidator;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
@@ -35,9 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = MainService.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Transactional
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class AdminEventIntegrationTest {
 
     @Autowired

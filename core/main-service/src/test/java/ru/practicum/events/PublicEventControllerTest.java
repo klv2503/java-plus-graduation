@@ -2,7 +2,6 @@ package ru.practicum.events;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -11,12 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.practicum.MainService;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.events.controller.PublicEventController;
 import ru.practicum.events.dto.EventFullDto;
@@ -35,8 +33,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PublicEventController.class)
-@ContextConfiguration(classes = MainService.class)
-@RequiredArgsConstructor
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class PublicEventControllerTest {
 
     @Autowired
@@ -45,7 +42,8 @@ public class PublicEventControllerTest {
     @MockBean
     private PublicEventsService service;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private final String firstDate = "2024-12-10 14:30:00";
 

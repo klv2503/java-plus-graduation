@@ -1,16 +1,12 @@
 package ru.practicum.users;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.MainService;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.category.service.CategoryService;
@@ -20,7 +16,6 @@ import ru.practicum.events.dto.UpdateEventAdminRequest;
 import ru.practicum.events.model.EventStateAction;
 import ru.practicum.events.model.Location;
 import ru.practicum.events.service.AdminEventService;
-import ru.practicum.events.service.PublicEventsServiceImpl;
 import ru.practicum.users.dto.ParticipationRequestDto;
 import ru.practicum.users.errors.EventOwnerParticipationException;
 import ru.practicum.users.errors.EventParticipationLimitException;
@@ -37,11 +32,10 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(properties = "classpath:application-test.properties", classes = MainService.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class RequestsForParticipationIntegrationTest {
     @Autowired
     private ParticipationRequestService participationRequestService;

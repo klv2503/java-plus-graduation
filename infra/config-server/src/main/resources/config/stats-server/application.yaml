@@ -3,7 +3,7 @@ spring:
     name: stats-server
 
   datasource:
-    url: jdbc:postgresql://postgres-ewm:6543/ewm_stats
+    url: jdbc:postgresql://localhost:6543/ewm_stats
     username: user
     password: password
     driver-class-name: org.postgresql.Driver

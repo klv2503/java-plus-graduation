@@ -1,16 +1,13 @@
 package ru.practicum.compilations;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.MainService;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.Filter;
 import ru.practicum.compilations.dto.NewCompilationDto;
@@ -28,12 +25,10 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(properties = "classpath:application-test.properties",
-        classes = MainService.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class CompilationIntegrationTest {
 
     @Autowired

@@ -2,7 +2,7 @@ spring:
   application:
     name: main-service
   config:
-    import: "configserver:"
+    import: "optional:configserver:"
   cloud:
     config:
       fail-fast: true
