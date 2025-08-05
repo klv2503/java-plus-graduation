@@ -1,18 +1,34 @@
 services:
-  stats-db:
+  postgres:
     image: postgres:16.1
-    ports:
-      - "6542:5432"
+    container_name: postgres-ewm
+    hostname: postgres
     environment:
-      POSTGRES_DB: ewm-stats
-      POSTGRES_USER: stat
-      POSTGRES_PASSWORD: stat
-
-  ewm-db:
-    image: postgres:16.1
-    ports:
-      - "6543:5432"
-    environment:
-      POSTGRES_DB: ewm-db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "6543:5432"
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      interval: 5s
+      retries: 10
+      timeout: 5s
+
+  db_init:
+    image: postgres:16.1
+    container_name: db-init-ewm
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        psql postgresql://user:password@postgres:5432/postgres -v ON_ERROR_STOP=1 <<-EOSQL
+          create database ewm_db;
+          create database ewm_stats;
+          grant all privileges on database ewm_db to user;
+          grant all privileges on database ewm_stats to user;
+        EOSQL
