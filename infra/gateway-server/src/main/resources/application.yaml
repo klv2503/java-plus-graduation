@@ -1,6 +1,6 @@
 spring:
   application:
-    name: gateway
+    name: gateway-server
   config:
     import: "configserver:"
   cloud:
