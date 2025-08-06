@@ -17,6 +17,6 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
-    instance:
-      preferIpAddress: true
-      instanceId: ${spring.application.name}:${random.uuid}
+  instance:
+    preferIpAddress: true
+    instanceId: ${spring.application.name}:${random.uuid}
