@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: main-service
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:6543/ewm_db}
+    username: ${DATABASE_USERNAME:user}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 0
+
+logging:
+  level:
+    ru.yandex.practicum: TRACE
+    org:
+      springframework: ERROR
