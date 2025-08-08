@@ -34,3 +34,4 @@ logging:
     org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
     reactor.netty.http.client: DEBUG
     reactor.netty.http.server: DEBUG
+    ru.yandex.practicum.gateway.GatewayRequestLoggerFilter: INFO

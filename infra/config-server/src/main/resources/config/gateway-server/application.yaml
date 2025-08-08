@@ -15,11 +15,7 @@ spring:
         - id: main_service_route
           uri: lb://main-service
           predicates:
-            - Path=/categories/**
-            - Path=/admin/**
-            - Path=/users/**
-            - Path=/events/**
-            - Path=/compilations/**
+            - Path=/**
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

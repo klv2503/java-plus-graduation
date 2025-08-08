@@ -24,6 +24,6 @@ server:
 
 logging:
   level:
-    ru.practicum: TRACE
+    ru.yandex.practicum: TRACE
     org:
       springframework: ERROR

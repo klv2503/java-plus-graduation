@@ -27,8 +27,10 @@ services:
       - |
         set -e
         psql postgresql://user:password@postgres:5432/postgres -v ON_ERROR_STOP=1 <<-EOSQL
+          DROP DATABASE IF EXISTS ewm_db;
+          DROP DATABASE IF EXISTS ewm_stats;
           create database ewm_db;
           create database ewm_stats;
-          grant all privileges on database ewm_db to user;
-          grant all privileges on database ewm_stats to user;
+          grant all privileges on database ewm_db to "user";
+          grant all privileges on database ewm_stats to "user";
         EOSQL

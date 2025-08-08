@@ -3,9 +3,9 @@ spring:
     name: main-service
 
   datasource:
-    url: jdbc:postgresql://localhost:6543/ewm_db
-    username: user
-    password: password
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:6543/ewm_db}
+    username: ${DATABASE_USERNAME:user}
+    password: ${DATABASE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -24,6 +24,6 @@ server:
 
 logging:
   level:
-    ru.practicum: TRACE
+    ru.yandex.practicum: TRACE
     org:
       springframework: ERROR
