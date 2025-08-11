@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.client.UserServiceFeign;
 import ru.yandex.practicum.compilations.dto.CompilationDto;
 import ru.yandex.practicum.compilations.dto.Filter;
 import ru.yandex.practicum.compilations.dto.NewCompilationDto;
@@ -39,6 +40,8 @@ public class CompilationIntegrationTest {
     private EventRepository eventRepository;
     @MockBean
     private PublicEventsServiceImpl publicEventsService;
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     @Test
     public void addCompilationTest() {

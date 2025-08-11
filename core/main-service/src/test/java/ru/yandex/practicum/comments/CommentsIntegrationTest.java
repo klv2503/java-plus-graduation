@@ -4,14 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.client.UserServiceFeign;
 import ru.yandex.practicum.comments.model.Comment;
 import ru.yandex.practicum.comments.model.CommentsStatus;
 import ru.yandex.practicum.comments.repository.CommentRepository;
 import ru.yandex.practicum.comments.service.CommentService;
-import ru.yandex.practicum.errors.AccessDeniedException;
-import ru.yandex.practicum.errors.ForbiddenActionException;
+import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +26,8 @@ public class CommentsIntegrationTest {
     CommentService commentService;
     @Autowired
     CommentRepository commentRepository;
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     @Test
     public void softDeleteComment() {

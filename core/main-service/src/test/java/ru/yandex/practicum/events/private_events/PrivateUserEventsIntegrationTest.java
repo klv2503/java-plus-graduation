@@ -8,13 +8,15 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.category.service.CategoryServiceImpl;
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.events.dto.NewEventDto;
-import ru.yandex.practicum.events.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.client.UserServiceFeign;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.events.NewEventDto;
+import ru.yandex.practicum.dto.events.UpdateEventUserRequest;
+import ru.yandex.practicum.events.mapper.LocationMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.Location;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.events.service.PublicEventsServiceImpl;
 import ru.yandex.practicum.users.dto.GetUserEventsDto;
@@ -37,12 +39,14 @@ public class PrivateUserEventsIntegrationTest {
     private CategoryServiceImpl categoryService;
     @Autowired
     private EventRepository eventRepository;
+    @MockBean
+    private UserServiceFeign userServiceFeign;
 
     @MockBean
     private PublicEventsServiceImpl publicEventsService;
 
     private final Location location = new Location(1L, 37, 56);
-    private final NewEventDto eventDto = new NewEventDto(6L, "annotation", 1L, "descr", "2024-12-31 15:10:05", location, true, 10, false, "Title");
+    private final NewEventDto eventDto = new NewEventDto(6L, "annotation", 1L, "descr", "2024-12-31 15:10:05", LocationMapper.mapLocationToDto(location), true, 10, false, "Title");
 
     @Test
     void savingNewEvent() {
@@ -88,7 +92,7 @@ public class PrivateUserEventsIntegrationTest {
 
         eventRepository.save(event);
 
-        EventFullDto fullEventDto = privateUserEventService.getUserEventById(event.getInitiator().getId(), event.getId());
+        EventFullDto fullEventDto = privateUserEventService.getUserEventById(event.getInitiatorId(), event.getId());
 
         assertAll(
                 () -> assertEquals(event.getTitle(), "New title"),
@@ -103,10 +107,10 @@ public class PrivateUserEventsIntegrationTest {
         event.setState(StateEvent.CANCELED);
         event.setCreatedOn(LocalDateTime.now());
         UpdateEventUserRequest updateRequest = new UpdateEventUserRequest(1L, "annotationannotationannotation", 1, "descrdescrdescrdescrdescrdescrdescrdescrdescrdescrdescrdescrdescrdescrdescr",
-                "2025-12-31 15:10:05", location,
+                "2025-12-31 15:10:05", LocationMapper.mapLocationToDto(location),
                 true, 10, true, "CANCEL_REVIEW", "Title");
 
-        EventFullDto updatedEvent = privateUserEventService.updateUserEvent(event.getInitiator().getId(), event.getId(), updateRequest);
+        EventFullDto updatedEvent = privateUserEventService.updateUserEvent(event.getInitiatorId(), event.getId(), updateRequest);
 
         assertAll(
                 () -> assertEquals(updateRequest.getTitle(), updatedEvent.getTitle()),

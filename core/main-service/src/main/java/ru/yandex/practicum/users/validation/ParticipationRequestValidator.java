@@ -3,7 +3,7 @@ package ru.yandex.practicum.users.validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.events.model.Event;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.users.errors.EventOwnerParticipationException;
 import ru.yandex.practicum.users.errors.EventParticipationLimitException;
 import ru.yandex.practicum.users.errors.NotPublishedEventParticipationException;
@@ -17,8 +17,8 @@ public class ParticipationRequestValidator {
 
     private final ParticipationRequestRepository requestRepository;
 
-    public RuntimeException checkRequest(User user, Event event, long confirmedRequestsCount) {
-        if (event.getInitiator().getId().equals(user.getId())) {
+    public RuntimeException checkRequest(Long userId, Event event, long confirmedRequestsCount) {
+        if (event.getInitiatorId().equals(userId)) {
             return new EventOwnerParticipationException("Event initiator cannot participate in their own event");
         }
 
@@ -26,7 +26,7 @@ public class ParticipationRequestValidator {
             return new NotPublishedEventParticipationException("Cannot participate in an unpublished event");
         }
 
-        if (requestRepository.existsByUserIdAndEventId(user.getId(), event.getId())) {
+        if (requestRepository.existsByUserIdAndEventId(userId, event.getId())) {
             return new RepeatParticipationRequestException("User already has a participation request for this event");
         }
 

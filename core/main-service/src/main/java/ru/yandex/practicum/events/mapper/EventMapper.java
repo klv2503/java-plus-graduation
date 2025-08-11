@@ -5,13 +5,11 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.category.mapper.CategoryDtoMapper;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.config.DateConfig;
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.events.dto.NewEventDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.events.NewEventDto;
 import ru.yandex.practicum.events.model.Event;
-import ru.yandex.practicum.events.model.StateEvent;
-import ru.yandex.practicum.users.dto.UserShortDto;
-import ru.yandex.practicum.users.model.User;
+import ru.yandex.practicum.enums.StateEvent;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -26,7 +24,7 @@ public class EventMapper {
                 .category(event.getCategory().getId())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(DateConfig.FORMATTER))
-                .location(event.getLocation())
+                .location(LocationMapper.mapLocationToDto(event.getLocation()))
                 .paid(event.isPaid())
                 .participantLimit(event.getParticipantLimit())
                 .requestModeration(event.isRequestModeration())
@@ -34,7 +32,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static Event dtoToEvent(NewEventDto dto, User user) {
+    public static Event dtoToEvent(NewEventDto dto, Long userId) {
         Category category = new Category();
         category.setId((long) dto.getCategory());
 
@@ -46,11 +44,11 @@ public class EventMapper {
                 .category(category)
                 .description(dto.getDescription())
                 .eventDate(eventTime)
-                .location(dto.getLocation())
+                .location(LocationMapper.mapDtoToLocation(dto.getLocation()))
                 .paid(dto.isPaid())
                 .participantLimit(Objects.nonNull(dto.getParticipantLimit()) ? dto.getParticipantLimit() : 0)
                 .requestModeration(Objects.nonNull(dto.getRequestModeration()) ? dto.getRequestModeration() : true)
-                .initiator(user)
+                .initiatorId(userId)
                 .createdOn(LocalDateTime.now())
                 .publishedOn(LocalDateTime.now())
                 .state(StateEvent.PENDING)
@@ -69,13 +67,13 @@ public class EventMapper {
                 .category(CategoryDtoMapper.mapCategoryToDto(event.getCategory()))
                 .confirmedRequests((event.getConfirmedRequests() == null) ? 0 : event.getConfirmedRequests())
                 .eventDate(event.getEventDate().format(DateConfig.FORMATTER))
-                .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
+                .initiator(event.getInitiatorId())
                 .paid(event.isPaid())
                 .title(event.getTitle())
                 .views((event.getViews() == null) ? 0 : event.getViews())
                 .createdOn(event.getCreatedOn().format(DateConfig.FORMATTER))
                 .description(event.getDescription())
-                .location(event.getLocation())
+                .location(LocationMapper.mapLocationToDto(event.getLocation()))
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(publishedOn)
                 .requestModeration(event.isRequestModeration())
@@ -90,7 +88,7 @@ public class EventMapper {
                 .category(CategoryDtoMapper.mapCategoryToDto(event.getCategory()))
                 .confirmedRequests((event.getConfirmedRequests() == null) ? 0 : event.getConfirmedRequests())
                 .eventDate(event.getEventDate().format(DateConfig.FORMATTER))
-                .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
+                .initiator(event.getInitiatorId())
                 .paid(event.isPaid())
                 .title(event.getTitle())
                 .views((event.getViews() == null) ? 0 : event.getViews())

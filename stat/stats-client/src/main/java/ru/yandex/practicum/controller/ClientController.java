@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.yandex.practicum.dto.CreateEndpointHitDto;
 import ru.yandex.practicum.dto.ManyEndPointDto;
 import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.utils.ServiceUriResolver;
 
 import java.net.URI;
 import java.time.LocalDateTime;

@@ -14,7 +14,7 @@ import ru.yandex.practicum.compilations.dto.NewCompilationDto;
 import ru.yandex.practicum.compilations.dto.UpdateCompilationRequest;
 import ru.yandex.practicum.compilations.model.Compilation;
 import ru.yandex.practicum.compilations.repository.CompilationRepository;
-import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.events.service.PublicEventsServiceImpl;

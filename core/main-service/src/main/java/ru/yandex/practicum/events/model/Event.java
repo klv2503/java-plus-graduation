@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.users.model.User;
+import ru.yandex.practicum.enums.StateEvent;
 
 import java.time.LocalDateTime;
 
@@ -50,9 +51,8 @@ public class Event {
     @Column(name = "request_moderation")
     private boolean requestModeration;
 
-    @ManyToOne
-    @JoinColumn(name = "initiator_id")
-    private User initiator;
+    @Column(name = "initiator_id")
+    private Long initiatorId;
 
     @Column(name = "creation_date")
     private LocalDateTime createdOn;

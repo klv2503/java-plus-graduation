@@ -1,10 +1,10 @@
 package ru.yandex.practicum.events.validation;
 
-import ru.yandex.practicum.errors.ForbiddenActionException;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
 import ru.yandex.practicum.events.dto.UpdateEventAdminRequest;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.EventStateAction;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 
 import java.time.LocalDateTime;
 

@@ -1,9 +1,9 @@
 package ru.yandex.practicum.users.service;
 
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.events.dto.NewEventDto;
-import ru.yandex.practicum.events.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.events.NewEventDto;
+import ru.yandex.practicum.dto.events.UpdateEventUserRequest;
 import ru.yandex.practicum.users.dto.EventRequestStatusUpdateRequest;
 import ru.yandex.practicum.users.dto.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.users.dto.GetUserEventsDto;

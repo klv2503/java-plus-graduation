@@ -15,16 +15,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.dto.category.CategoryDto;
+import ru.yandex.practicum.dto.location.LocationDto;
 import ru.yandex.practicum.events.controller.PublicEventController;
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.events.dto.LookEventDto;
 import ru.yandex.practicum.events.dto.SearchEventsParams;
-import ru.yandex.practicum.events.model.Location;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.events.service.PublicEventsService;
-import ru.yandex.practicum.users.dto.UserShortDto;
+import ru.yandex.practicum.dto.user.UserShortDto;
 
 import java.util.List;
 
@@ -59,12 +59,12 @@ public class PublicEventControllerTest {
             .confirmedRequests(0)
             .paid(true)
             .title("without")
-            .initiator(new UserShortDto())
+            .initiator(0L)
             .views(0)
             .createdOn(secondDate)
             .description("12345".repeat(15))
             .publishedOn(thirdDate)
-            .location(new Location())
+            .location(new LocationDto())
             .participantLimit(0)
             .requestModeration(true)
             .state(StateEvent.PUBLISHED)
@@ -75,7 +75,7 @@ public class PublicEventControllerTest {
             .category(new CategoryDto())
             .confirmedRequests(0)
             .eventDate(firstDate)
-            .initiator(new UserShortDto())
+            .initiator(0L)
             .paid(true)
             .title("without")
             .build();

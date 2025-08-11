@@ -7,11 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.client.UserServiceFeign;
+import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.GetCategoriesParams;
 import ru.yandex.practicum.category.dto.NewCategoryDto;
 import ru.yandex.practicum.category.model.Category;
@@ -37,6 +39,9 @@ public class CategoryServiceTests {
 
     @Autowired
     private CategoryService service;
+
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     @Test
     public void testAddCategory() {

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.category.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.model.Category;
 
 import java.util.List;

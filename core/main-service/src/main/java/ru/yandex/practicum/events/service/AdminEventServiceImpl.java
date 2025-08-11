@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.repository.CategoryRepository;
-import ru.yandex.practicum.events.dto.EventFullDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.events.dto.UpdateEventAdminRequest;
 import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.EventStateAction;
 import ru.yandex.practicum.events.model.QEvent;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.events.validation.AdminEventValidator;
 
@@ -51,7 +51,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         // Фильтрация по пользователям
         if (!CollectionUtils.isEmpty(users)) {
-            builder.and(event.initiator.id.in(users));
+            builder.and(event.initiatorId.in(users));
         }
 
         // Фильтрация по состояниям

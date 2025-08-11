@@ -1,21 +1,23 @@
 package ru.yandex.practicum.users.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.category.repository.CategoryRepository;
+import ru.yandex.practicum.client.UserServiceFeign;
 import ru.yandex.practicum.config.DateConfig;
-import ru.yandex.practicum.errors.ForbiddenActionException;
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.events.dto.NewEventDto;
-import ru.yandex.practicum.events.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.events.NewEventDto;
+import ru.yandex.practicum.dto.events.UpdateEventUserRequest;
 import ru.yandex.practicum.events.mapper.EventMapper;
+import ru.yandex.practicum.events.mapper.LocationMapper;
 import ru.yandex.practicum.events.model.Event;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.users.dto.EventRequestStatusUpdateRequest;
 import ru.yandex.practicum.users.dto.EventRequestStatusUpdateResult;
@@ -25,7 +27,6 @@ import ru.yandex.practicum.users.mapper.ParticipationRequestToDtoMapper;
 import ru.yandex.practicum.users.model.ParticipationRequest;
 import ru.yandex.practicum.users.model.ParticipationRequestStatus;
 import ru.yandex.practicum.users.model.RequestUpdateStatus;
-import ru.yandex.practicum.users.model.User;
 import ru.yandex.practicum.users.repository.ParticipationRequestRepository;
 
 import java.time.LocalDateTime;
@@ -35,20 +36,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class PrivateUserEventServiceImpl implements PrivateUserEventService {
-    private EventRepository eventRepository;
-    private AdminUserService adminUserService;
-    private CategoryRepository categoryRepository;
-    private ParticipationRequestRepository requestRepository;
+    private final EventRepository eventRepository;
+    private final UserServiceFeign userServiceFeign;
+    private final CategoryRepository categoryRepository;
+    private final ParticipationRequestRepository requestRepository;
 
     @Override
     public List<EventShortDto> getUsersEvents(GetUserEventsDto dto) {
-        User user = adminUserService.getUser(dto.getUserId());
+        userServiceFeign.getUserById(dto.getUserId());
         PageRequest page = PageRequest.of(dto.getFrom() > 0 ? dto.getFrom() / dto.getSize() : 0, dto.getSize());
-        return eventRepository.findAllByInitiatorId(user.getId(), page).stream()
+        return eventRepository.findAllByInitiatorId(dto.getUserId(), page).stream()
                 .map(EventMapper::toEventShortDto)
                 .toList();
     }
@@ -63,8 +64,8 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Override
     @Transactional
     public EventFullDto addNewEvent(Long userId, NewEventDto eventDto) {
-        User user = adminUserService.getUser(userId);
-        Event event = EventMapper.dtoToEvent(eventDto, user);
+        userServiceFeign.getUserById(userId);
+        Event event = EventMapper.dtoToEvent(eventDto, userId);
 
         eventRepository.save(event);
 
@@ -74,11 +75,11 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Override
     @Transactional
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateDto) {
-        User user = adminUserService.getUser(userId);
+        userServiceFeign.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        if (!Objects.equals(event.getInitiator().getId(), userId)) {
+        if (!Objects.equals(event.getInitiatorId(), userId)) {
             throw new ForbiddenActionException("User is not the event creator");
         }
 
@@ -89,7 +90,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
         Optional.ofNullable(updateDto.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(updateDto.getDescription()).ifPresent(event::setDescription);
         Optional.ofNullable(updateDto.getEventDate()).map(this::parseEventDate).ifPresent(event::setEventDate);
-        Optional.ofNullable(updateDto.getLocation()).ifPresent(event::setLocation);
+        Optional.ofNullable(updateDto.getLocation()).map(LocationMapper::mapDtoToLocation).ifPresent(event::setLocation);
 
         if (updateDto.getCategory() != 0) {
             event.setCategory(categoryRepository.findById((long) updateDto.getCategory())
@@ -99,7 +100,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
         updateEventState(event, updateDto.getStateAction());
 
         event.setRequestModeration(updateDto.isRequestModeration());
-        event.setInitiator(user);
+        event.setInitiatorId(userId);
 
         return EventMapper.toEventFullDto(eventRepository.save(event));
     }
@@ -116,7 +117,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult updateUserEventRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
-        User user = adminUserService.getUser(userId);
+        userServiceFeign.getUserById(userId);
         Event event = getEventWithConfirmedRequests(eventId);
 
         List<ParticipationRequest> participation = requestRepository.findByIds(request.getRequestIds());

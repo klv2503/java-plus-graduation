@@ -12,10 +12,16 @@ spring:
           enabled: true
 
       routes:
+        - id: user_service_route
+          uri: lb://user-service
+          predicates:
+            - Path=/admin/users/**
+
         - id: main_service_route
           uri: lb://main-service
           predicates:
             - Path=/**
+
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

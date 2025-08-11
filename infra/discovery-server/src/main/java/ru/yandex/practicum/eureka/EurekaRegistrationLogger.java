@@ -8,6 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -20,14 +21,12 @@ public class EurekaRegistrationLogger {
     public void onInstanceRegistered(EurekaInstanceRegisteredEvent event) {
         InstanceInfo info = event.getInstanceInfo();
 
-        // Попробуем достать IP клиента из текущего запроса
         String clientIp = "unknown";
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs != null) {
-            HttpServletRequest request = attrs.getRequest();
-            if (request != null) {
-                clientIp = request.getRemoteAddr();
-            }
+        //Комментарий себе для памяти.
+        //Одновременно проверяем, что атрибуты запроса не null и что они принадлежат к типу ServletRequestAttributes.
+        //Если условие выполнено, переменная attrs автоматически приводится к этому типу и доступна только внутри {}.
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
+            clientIp = attrs.getRequest().getRemoteAddr();
         }
 
         log.warn("Eureka registration: appName={}, instanceId={}, status={}, from IP={}",

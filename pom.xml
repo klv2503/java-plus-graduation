@@ -16,6 +16,7 @@
 		<module>stat</module>
 		<module>infra</module>
 		<module>core</module>
+		<module>common</module>
 	</modules>
 
 	<dependencyManagement>

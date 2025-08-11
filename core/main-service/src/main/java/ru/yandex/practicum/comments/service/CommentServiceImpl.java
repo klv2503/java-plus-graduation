@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.client.UserServiceFeign;
 import ru.yandex.practicum.comments.dto.CommentDto;
 import ru.yandex.practicum.comments.dto.CommentEconomDto;
 import ru.yandex.practicum.comments.dto.CommentOutputDto;
@@ -18,11 +19,10 @@ import ru.yandex.practicum.comments.model.Comment;
 import ru.yandex.practicum.comments.model.CommentsOrder;
 import ru.yandex.practicum.comments.model.CommentsStatus;
 import ru.yandex.practicum.comments.repository.CommentRepository;
-import ru.yandex.practicum.errors.AccessDeniedException;
-import ru.yandex.practicum.errors.ForbiddenActionException;
+import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.events.service.PublicEventsService;
-import ru.yandex.practicum.users.service.AdminUserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +36,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 @Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService {
 
-    private final AdminUserService adminUserService;
+    private final UserServiceFeign userServiceFeign;
 
     private final PublicEventsService publicEventsService;
 
@@ -80,8 +80,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentEconomDto addComment(Long userId, CommentDto commentDto) {
+        userServiceFeign.getUserById(userId); //проверка существования юзера
         Comment comment = Comment.builder()
-                .user(adminUserService.getUser(userId))
+                .userId(userId)
                 .event(publicEventsService.getEventAnyStatusWithViews(commentDto.getEventId()))
                 .text(commentDto.getText())
                 .created(LocalDateTime.now())
@@ -94,7 +95,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentEconomDto updateComment(CommentDto dto) {
         Comment comment = getComment(dto.getId());
-        if (!comment.getUser().getId().equals(dto.getUserId())) {
+        if (!comment.getUserId().equals(dto.getUserId())) {
             throw new AccessDeniedException("User " + dto.getUserId() + "can't edit this comment.");
         }
         comment.setText(dto.getText());
@@ -125,7 +126,7 @@ public class CommentServiceImpl implements CommentService {
     public void softDelete(Long userId, Long commentId) {
         Comment comment = getComment(commentId);
 
-        if (!comment.getUser().getId().equals(userId)) {
+        if (!comment.getUserId().equals(userId)) {
            throw new AccessDeniedException("Not enough rights");
         }
 

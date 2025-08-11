@@ -1,7 +1,7 @@
 package ru.yandex.practicum.events.service;
 
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.events.dto.LookEventDto;
 import ru.yandex.practicum.events.dto.SearchEventsParams;
 import ru.yandex.practicum.events.model.Event;

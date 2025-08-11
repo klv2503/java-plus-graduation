@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.GetCategoriesParams;
 import ru.yandex.practicum.category.service.CategoryService;
 

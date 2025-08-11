@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.category.controller.AdminCategoryController;
-import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.NewCategoryDto;
 import ru.yandex.practicum.category.service.CategoryService;
 

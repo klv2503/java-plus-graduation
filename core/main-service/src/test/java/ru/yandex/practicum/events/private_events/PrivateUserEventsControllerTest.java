@@ -9,15 +9,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.category.dto.CategoryDto;
-import ru.yandex.practicum.events.dto.EventFullDto;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.events.dto.NewEventDto;
-import ru.yandex.practicum.events.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.dto.category.CategoryDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.events.NewEventDto;
+import ru.yandex.practicum.dto.events.UpdateEventUserRequest;
+import ru.yandex.practicum.dto.location.LocationDto;
 import ru.yandex.practicum.events.model.Location;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.users.controller.PrivateUserEventController;
-import ru.yandex.practicum.users.dto.UserShortDto;
+import ru.yandex.practicum.dto.user.UserShortDto;
 import ru.yandex.practicum.users.service.PrivateUserEventService;
 
 import java.nio.charset.StandardCharsets;
@@ -41,17 +42,17 @@ public class PrivateUserEventsControllerTest {
     @MockBean
     private PrivateUserEventService privateUserEventService;
     private final NewEventDto eventDto = new NewEventDto(1L, "annotationannotationannotation", 1L, "descriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescription",
-            "2025-12-31 15:10:05", new Location(), true, 10, false, "Title");
+            "2025-12-31 15:10:05", new LocationDto(), true, 10, false, "Title");
     private final EventFullDto eventFullDto = EventFullDto.builder()
             .id(1L)
-            .location(new Location(1L, 33, 33))
+            .location(new LocationDto(33, 33))
             .eventDate("2024-12-31 15:10:05")
             .publishedOn("2024-12-31 15:10:05")
             .annotation("annotation2")
             .description("descr")
             .title("Title")
             .state(StateEvent.PENDING)
-            .initiator(new UserShortDto())
+            .initiator(null)
             .views(1)
             .confirmedRequests(1)
             .paid(true)
@@ -64,7 +65,7 @@ public class PrivateUserEventsControllerTest {
             .confirmedRequests(1)
             .eventDate("2024-12-31 15:10:05")
             .id(1L)
-            .initiator(new UserShortDto())
+            .initiator(null)
             .paid(true)
             .title("Title")
             .views(1)
@@ -139,7 +140,7 @@ public class PrivateUserEventsControllerTest {
     @SneakyThrows
     public void updateUserEvent() {
         UpdateEventUserRequest updateDto = new UpdateEventUserRequest(1L, "aninaninaninaninaninaninaninanin", 1, "descdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdesc",
-                "2026-03-11 15:10:00", new Location(1L, 33, 33), true,
+                "2026-03-11 15:10:00", new LocationDto(33, 33), true,
                 1, true, "S", "titile");
 
         when(privateUserEventService.updateUserEvent(any(), anyLong(), any())).thenReturn(eventFullDto);

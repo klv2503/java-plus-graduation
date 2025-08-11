@@ -14,8 +14,8 @@ import ru.yandex.practicum.compilations.dto.CompilationDto;
 import ru.yandex.practicum.compilations.dto.NewCompilationDto;
 import ru.yandex.practicum.compilations.dto.UpdateCompilationRequest;
 import ru.yandex.practicum.compilations.service.CompilationService;
-import ru.yandex.practicum.events.dto.EventShortDto;
-import ru.yandex.practicum.users.dto.UserShortDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
+import ru.yandex.practicum.dto.user.UserShortDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class AdminCompilationControllerTest {
 
     private final UserShortDto userShortDto = new UserShortDto(3L, "username");
     private final EventShortDto eventShortDto = new EventShortDto(1L, "annotation", null, 5,
-            LocalDateTime.of(2025, 11, 7, 12, 30, 0).toString(), userShortDto, false,
+            LocalDateTime.of(2025, 11, 7, 12, 30, 0).toString(), 3L, false,
             "title", 15);
     private final CompilationDto compilationDto = new CompilationDto(List.of(eventShortDto), 2L, true, "title");
     private final NewCompilationDto newCompilationDto = new NewCompilationDto(Set.of(1L, 2L), false, "title");

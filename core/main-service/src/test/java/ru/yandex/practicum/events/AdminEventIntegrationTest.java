@@ -5,18 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.repository.CategoryRepository;
+import ru.yandex.practicum.client.UserServiceFeign;
 import ru.yandex.practicum.config.DateConfig;
-import ru.yandex.practicum.errors.ForbiddenActionException;
-import ru.yandex.practicum.events.dto.EventFullDto;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
+import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.events.dto.UpdateEventAdminRequest;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.EventStateAction;
 import ru.yandex.practicum.events.model.Location;
-import ru.yandex.practicum.events.model.StateEvent;
+import ru.yandex.practicum.enums.StateEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
 import ru.yandex.practicum.events.service.AdminEventService;
 import ru.yandex.practicum.events.validation.AdminEventValidator;
@@ -35,6 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class AdminEventIntegrationTest {
+
+    @MockBean
+    private UserServiceFeign userServiceFeign;
 
     @Autowired
     private AdminEventService adminEventService;
@@ -56,9 +61,10 @@ public class AdminEventIntegrationTest {
     @BeforeEach
     void setUp() {
         testUser = new User();
+        testUser.setId(1L);
         testUser.setName("Test User");
         testUser.setEmail("testuser@example.com");
-        testUser = userRepository.save(testUser);
+        //testUser = userRepository.save(testUser);
 
         testCategory = new Category();
         testCategory.setName("Test Category");
@@ -84,7 +90,7 @@ public class AdminEventIntegrationTest {
         pendingEvent.setLocation(location);
         pendingEvent.setState(StateEvent.PENDING);
         pendingEvent.setViews(0);
-        pendingEvent.setInitiator(testUser);
+        pendingEvent.setInitiatorId(testUser.getId());
         pendingEvent.setCreatedOn(LocalDateTime.now());
         pendingEvent = eventRepository.save(this.pendingEvent);
     }

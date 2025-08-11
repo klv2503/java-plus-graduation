@@ -4,7 +4,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.compilations.dto.CompilationDto;
 import ru.yandex.practicum.compilations.model.Compilation;
-import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
 
 import java.util.Collection;
 import java.util.HashMap;

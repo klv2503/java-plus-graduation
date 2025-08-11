@@ -1,6 +1,6 @@
 package ru.yandex.practicum.events.service;
 
-import ru.yandex.practicum.events.dto.EventFullDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.events.dto.UpdateEventAdminRequest;
 
 import java.time.LocalDateTime;

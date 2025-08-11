@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.comments.model.CommentsStatus;
-import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.users.model.User;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public class CommentOutputDto {
 
     private Long id;
 
-    private User user;
+    private Long userId;
 
     private EventShortDto event;
 
