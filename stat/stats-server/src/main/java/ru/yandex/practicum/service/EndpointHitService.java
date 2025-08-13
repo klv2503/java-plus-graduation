@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.CreateEndpointHitDto;
 import ru.yandex.practicum.dto.ManyEndPointDto;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.dto.TakeHitsDto;
 import ru.yandex.practicum.model.EndpointHit;
 import ru.yandex.practicum.repository.EndpointHitRepository;

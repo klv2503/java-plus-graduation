@@ -2,7 +2,7 @@ package ru.yandex.practicum.category.service;
 
 import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.GetCategoriesParams;
-import ru.yandex.practicum.category.dto.NewCategoryDto;
+import ru.yandex.practicum.dto.category.NewCategoryDto;
 
 import java.util.List;
 

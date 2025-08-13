@@ -21,20 +21,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+# Здесь взял за образец то, что было на вебинаре. Пока оставляю
     entrypoint:
       - bash
       - -c
       - |
         set -e
-        # Здесь взял за образец то, что было на вебинаре. Пока оставляю
         psql postgresql://user:password@postgres:5432/postgres -v ON_ERROR_STOP=1 <<-EOSQL
           DROP DATABASE IF EXISTS ewm_db;
           DROP DATABASE IF EXISTS ewm_stats;
           DROP DATABASE IF EXISTS user_db;
+          DROP DATABASE IF EXISTS request_db; 
+          DROP DATABASE IF EXISTS event_db; 
           create database ewm_db;
           create database ewm_stats;
           create database user_db;
+          create database request_db;
+          create database event_db;
           grant all privileges on database ewm_db to "user";
           grant all privileges on database ewm_stats to "user";
           grant all privileges on database user_db to "user";
+          grant all privileges on database request_db to "user";
+          grant all privileges on database event_db to "user";
         EOSQL

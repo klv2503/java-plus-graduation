@@ -10,7 +10,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.yandex.practicum.dto.CreateEndpointHitDto;
 import ru.yandex.practicum.dto.ManyEndPointDto;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.utils.ServiceUriResolver;
 
 import java.net.URI;

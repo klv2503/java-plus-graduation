@@ -12,10 +12,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.client.UserServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.GetCategoriesParams;
-import ru.yandex.practicum.category.dto.NewCategoryDto;
+import ru.yandex.practicum.dto.category.NewCategoryDto;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.service.CategoryService;
 

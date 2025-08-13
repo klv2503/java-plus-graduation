@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.comments.dto.CommentDto;
-import ru.yandex.practicum.comments.dto.CommentEconomDto;
 import ru.yandex.practicum.comments.service.CommentService;
 
 @RestController
@@ -22,16 +21,16 @@ public class UserCommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CommentEconomDto> addComment(@PathVariable
+    public ResponseEntity<CommentDto> addComment(@PathVariable
                                                        @Min(value = 1, message = "ID must be positive") Long userId,
                                                        @RequestBody @Valid CommentDto dto) {
         log.info("\nCommentController.addComment accepted userId {}, dto {}", userId, dto);
-        CommentEconomDto createdComment = commentService.addComment(userId, dto);
+        CommentDto createdComment = commentService.addComment(userId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentEconomDto> updateComment(@PathVariable
+    public ResponseEntity<CommentDto> updateComment(@PathVariable
                                                           @Min(value = 1, message = "ID must be positive") Long userId,
                                                           @PathVariable
                                                           @Min(value = 1, message = "ID must be positive") Long commentId,

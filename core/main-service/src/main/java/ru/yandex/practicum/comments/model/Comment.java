@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.events.model.Event;
-import ru.yandex.practicum.users.model.User;
 
 import java.time.LocalDateTime;
 
@@ -26,9 +24,8 @@ public class Comment {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @Column(name = "event_id", nullable = false)
+    private Long event;
 
     @Column(name = "text", nullable = false)
     private String text;

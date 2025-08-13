@@ -8,13 +8,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import ru.yandex.practicum.clients.EventServiceFeign;
 import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.category.dto.GetCategoriesParams;
-import ru.yandex.practicum.category.dto.NewCategoryDto;
+import ru.yandex.practicum.dto.category.NewCategoryDto;
 import ru.yandex.practicum.category.mapper.CategoryDtoMapper;
 import ru.yandex.practicum.category.mapper.NewCategoryMapper;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.repository.CategoryRepository;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
 
 import java.util.List;
 
@@ -27,6 +31,8 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     private final NewCategoryMapper newCategoryMapper;
+
+    private final EventServiceFeign eventServiceFeign;
 
     @Override
     @Transactional
@@ -41,7 +47,13 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(long id) {
         if (!categoryRepository.existsById(id))
             throw new EntityNotFoundException("Category with " + id + " not found");
-        categoryRepository.deleteById(id);
+        List<EventFullDto> events =
+                eventServiceFeign.getEvents(null, null, List.of(id), null, null,0, 10).getBody();
+        if (CollectionUtils.isEmpty(events)) {
+            categoryRepository.deleteById(id);
+        } else {
+            throw new ForbiddenActionException("Cannot delete category " + id + " because it is used in one or more events");
+        }
     }
 
     @Override

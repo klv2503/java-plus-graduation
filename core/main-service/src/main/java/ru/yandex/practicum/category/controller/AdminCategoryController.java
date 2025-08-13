@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.category.CategoryDto;
-import ru.yandex.practicum.category.dto.NewCategoryDto;
+import ru.yandex.practicum.dto.category.NewCategoryDto;
 import ru.yandex.practicum.category.service.CategoryService;
 
 @RestController

@@ -28,10 +28,10 @@ eureka:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
-    org.springframework.http.server.reactive: DEBUG
-    org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
-    reactor.netty.http.client: DEBUG
-    reactor.netty.http.server: DEBUG
+    #org.springframework.cloud.gateway: DEBUG
+    #org.springframework.web.reactive: DEBUG
+    #org.springframework.http.server.reactive: DEBUG
+    #org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
+    #reactor.netty.http.client: DEBUG
+    #reactor.netty.http.server: DEBUG
     ru.yandex.practicum.gateway.GatewayRequestLoggerFilter: INFO

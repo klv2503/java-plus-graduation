@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.config.DateConfig;
 
 @Data
@@ -14,10 +13,9 @@ import ru.yandex.practicum.config.DateConfig;
 @AllArgsConstructor
 @SuperBuilder
 public class EventShortDto {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     private String annotation;
-    private CategoryDto category;
+    private Long category;
     private int confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateConfig.FORMAT)
     private String eventDate;

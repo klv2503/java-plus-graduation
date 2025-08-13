@@ -11,7 +11,7 @@ import ru.yandex.practicum.config.DateConfig;
 import ru.yandex.practicum.dto.CreateEndpointHitDto;
 import ru.yandex.practicum.dto.ManyEndPointDto;
 import ru.yandex.practicum.dto.TakeHitsDto;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.service.EndpointHitService;
 
 import java.time.LocalDateTime;

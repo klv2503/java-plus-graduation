@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CommentPagedDto {
-    private List<CommentOutputDto> comments;
+    private List<CommentDto> comments;
     private int page;
     private int total;
 }

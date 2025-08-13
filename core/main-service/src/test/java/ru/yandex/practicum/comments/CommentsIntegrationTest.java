@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.client.UserServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.comments.model.Comment;
 import ru.yandex.practicum.comments.model.CommentsStatus;
 import ru.yandex.practicum.comments.repository.CommentRepository;

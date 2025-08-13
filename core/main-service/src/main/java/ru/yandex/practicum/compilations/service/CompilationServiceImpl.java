@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.clients.EventServiceFeign;
 import ru.yandex.practicum.compilations.dto.CompilationDto;
 import ru.yandex.practicum.compilations.dto.Filter;
 import ru.yandex.practicum.compilations.dto.NewCompilationDto;
@@ -15,9 +16,6 @@ import ru.yandex.practicum.compilations.dto.UpdateCompilationRequest;
 import ru.yandex.practicum.compilations.model.Compilation;
 import ru.yandex.practicum.compilations.repository.CompilationRepository;
 import ru.yandex.practicum.dto.events.EventShortDto;
-import ru.yandex.practicum.events.mapper.EventMapper;
-import ru.yandex.practicum.events.repository.EventRepository;
-import ru.yandex.practicum.events.service.PublicEventsServiceImpl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,8 +34,7 @@ import static ru.yandex.practicum.compilations.mapper.NewCompilationDtoToCompila
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
-    private final EventRepository eventRepository;
-    private final PublicEventsServiceImpl publicEventsService;
+    private final EventServiceFeign eventFeign;
 
     @Override
     public CompilationDto getById(Long compId) {
@@ -116,10 +113,10 @@ public class CompilationServiceImpl implements CompilationService {
                 .distinct()
                 .collect(Collectors.toList());
 
-        //спорный способ вернуть HashMap
-        return new HashMap<>(publicEventsService.getEventsByListIds(eventsId).stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toMap(EventShortDto::getId, Function.identity())));
+        return new HashMap<>(
+                eventFeign.getEventsByListIds(eventsId).getBody().stream()
+                        .collect(Collectors.toMap(EventShortDto::getId, Function.identity()))
+        );
     }
 
     private List<EventShortDto> getEventsListForDto(Compilation compilation) {
@@ -127,8 +124,7 @@ public class CompilationServiceImpl implements CompilationService {
             return Collections.EMPTY_LIST;
         }
 
-        List<EventShortDto> events = publicEventsService.getEventsByListIds(compilation.getEvents().stream().toList())
-                .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+        List<EventShortDto> events = eventFeign.getEventsByListIds(compilation.getEvents().stream().toList()).getBody();
         log.info("EventsShortDto: {}", events);
         return events;
     }

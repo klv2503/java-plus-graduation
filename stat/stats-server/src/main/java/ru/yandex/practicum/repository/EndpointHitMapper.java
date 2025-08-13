@@ -2,7 +2,7 @@ package ru.yandex.practicum.repository;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

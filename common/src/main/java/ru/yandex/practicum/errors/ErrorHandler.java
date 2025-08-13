@@ -1,10 +1,13 @@
 package ru.yandex.practicum.errors;
 
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -93,6 +96,16 @@ public class ErrorHandler {
         return buildErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR, "Got 500 status Internal server error");
     }
 
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<?> handleFeignStatusException(FeignException e) {
+        HttpStatus status = HttpStatus.resolve(e.status());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return buildErrorResponse(e, status, e.getMessage());
+    }
+
     private ResponseEntity<ApiError> buildErrorResponse(Exception e, HttpStatus status, String message) {
         StackTraceElement sElem = e.getStackTrace()[0];
         String className = sElem.getClassName();
@@ -107,4 +120,5 @@ public class ErrorHandler {
         return ResponseEntity.status(status)
                 .body(new ApiError(statusStr, message, e));
     }
+
 }

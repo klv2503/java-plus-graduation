@@ -9,5 +9,5 @@ import ru.yandex.practicum.comments.model.CommentsStatus;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Page<Comment> findByEventIdAndStatus(Long eventId, CommentsStatus status, Pageable pageable);
+    Page<Comment> findByEventAndStatus(Long eventId, CommentsStatus status, Pageable pageable);
 }

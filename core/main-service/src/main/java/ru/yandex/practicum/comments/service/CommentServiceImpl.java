@@ -9,10 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.client.UserServiceFeign;
+import ru.yandex.practicum.clients.EventServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.comments.dto.CommentDto;
-import ru.yandex.practicum.comments.dto.CommentEconomDto;
-import ru.yandex.practicum.comments.dto.CommentOutputDto;
 import ru.yandex.practicum.comments.dto.CommentPagedDto;
 import ru.yandex.practicum.comments.mapper.CommentMapper;
 import ru.yandex.practicum.comments.model.Comment;
@@ -21,14 +20,10 @@ import ru.yandex.practicum.comments.model.CommentsStatus;
 import ru.yandex.practicum.comments.repository.CommentRepository;
 import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
 import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
-import ru.yandex.practicum.events.repository.EventRepository;
-import ru.yandex.practicum.events.service.PublicEventsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Slf4j
 @Service
@@ -38,9 +33,7 @@ public class CommentServiceImpl implements CommentService {
 
     private final UserServiceFeign userServiceFeign;
 
-    private final PublicEventsService publicEventsService;
-
-    private final EventRepository eventRepository;
+    private final EventServiceFeign eventServiceFeign;
 
     private final CommentRepository commentRepository;
 
@@ -55,8 +48,7 @@ public class CommentServiceImpl implements CommentService {
         if (sort == null)
             throw new IllegalArgumentException("Sort parameter cannot be null.");
 
-        eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event with " + id + " not found"));
+        eventServiceFeign.getEventInfo(eventId);
 
         Sort sortType = sort == CommentsOrder.NEWEST ?
                 Sort.by("id").descending() : Sort.by("id").ascending();
@@ -64,10 +56,10 @@ public class CommentServiceImpl implements CommentService {
         Pageable pageable = PageRequest.of(page - 1, size, sortType);
 
         Page<Comment> commentPage = commentRepository
-                .findByEventIdAndStatus(eventId, CommentsStatus.PUBLISHED, pageable);
+                .findByEventAndStatus(eventId, CommentsStatus.PUBLISHED, pageable);
 
-        List<CommentOutputDto> comments = commentPage.getContent().stream()
-                .map(CommentMapper::commentToOutputDto)
+        List<CommentDto> comments = commentPage.getContent().stream()
+                .map(CommentMapper::commentToDto)
                 .collect(Collectors.toList());
 
         return CommentPagedDto.builder()
@@ -79,28 +71,29 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentEconomDto addComment(Long userId, CommentDto commentDto) {
+    public CommentDto addComment(Long userId, CommentDto commentDto) {
         userServiceFeign.getUserById(userId); //проверка существования юзера
+        eventServiceFeign.getEventInfo(commentDto.getEventId());
         Comment comment = Comment.builder()
                 .userId(userId)
-                .event(publicEventsService.getEventAnyStatusWithViews(commentDto.getEventId()))
+                .event(commentDto.getEventId())
                 .text(commentDto.getText())
                 .created(LocalDateTime.now())
                 .status(CommentsStatus.PUBLISHED)
                 .build();
-        return CommentMapper.commentToEconomDto(commentRepository.save(comment));
+        return CommentMapper.commentToDto(commentRepository.save(comment));
     }
 
     @Override
     @Transactional
-    public CommentEconomDto updateComment(CommentDto dto) {
+    public CommentDto updateComment(CommentDto dto) {
         Comment comment = getComment(dto.getId());
         if (!comment.getUserId().equals(dto.getUserId())) {
             throw new AccessDeniedException("User " + dto.getUserId() + "can't edit this comment.");
         }
         comment.setText(dto.getText());
         log.info("CommentServiceImpl: Comment for update {}", comment);
-        return CommentMapper.commentToEconomDto(commentRepository.save(comment));
+        return CommentMapper.commentToDto(commentRepository.save(comment));
     }
 
     @Override

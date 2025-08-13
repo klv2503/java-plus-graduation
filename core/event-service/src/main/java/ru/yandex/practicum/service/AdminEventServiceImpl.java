@@ -1,0 +1,164 @@
+package ru.yandex.practicum.service;
+
+import com.querydsl.core.BooleanBuilder;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import ru.yandex.practicum.client.EventCategoryFeign;
+import ru.yandex.practicum.client.EventRequestFeign;
+import ru.yandex.practicum.dto.category.CategoryDto;
+import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.enums.EventStateAction;
+import ru.yandex.practicum.enums.StateEvent;
+import ru.yandex.practicum.model.QEvent;
+import ru.yandex.practicum.dto.events.UpdateEventAdminRequest;
+import ru.yandex.practicum.mapper.EventMapper;
+import ru.yandex.practicum.model.Event;
+import ru.yandex.practicum.repository.EventRepository;
+import ru.yandex.practicum.validation.AdminEventValidator;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class AdminEventServiceImpl implements AdminEventService {
+
+    private final EventRepository eventRepository;
+    private final EventCategoryFeign eventCategoryFeign;
+    private final EventRequestFeign eventRequestFeign;
+
+    @Override
+    public List<EventFullDto> getEvents(
+            List<Long> users,
+            List<String> states,
+            List<Long> categories,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            int from,
+            int size) {
+
+        // Создаем объект QEvent для построения запроса
+        QEvent event = QEvent.event;
+
+        // Строим базовый запрос
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // Фильтрация по пользователям
+        if (!CollectionUtils.isEmpty(users)) {
+            builder.and(event.initiatorId.in(users));
+        }
+
+        // Фильтрация по состояниям
+        if (!CollectionUtils.isEmpty(states)) {
+            builder.and(event.state.in(states.stream().map(StateEvent::valueOf).collect(Collectors.toList())));
+        }
+
+        // Фильтрация по категориям
+        if (!CollectionUtils.isEmpty(categories)) {
+            builder.and(event.category.in(categories));
+        }
+
+        // Фильтрация по диапазону времени
+        if (rangeStart != null) {
+            builder.and(event.eventDate.goe(rangeStart));
+        }
+
+        if (rangeEnd != null) {
+            builder.and(event.eventDate.loe(rangeEnd));
+        }
+
+        // Пагинация
+        Pageable pageable = PageRequest.of(from / size, size);
+
+        // Выполнение запроса
+        Page<Event> eventsPage = eventRepository.findAll(builder, pageable);
+
+        // Получаем список ID событий
+        List<Long> eventIds = eventsPage.getContent().stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        // Получаем события с количеством подтвержденных запросов
+        Map<Long, Long> counts = eventRequestFeign.getParticipationCounts(eventIds).getBody();
+
+        List<Event> events = eventsPage.getContent();
+        for (Event e : events) {
+            e.setConfirmedRequests(Math.toIntExact(counts.getOrDefault(e.getId(), 0L)));
+        }
+
+        // Преобразуем сущности Event в EventFullDto
+        return events.stream()
+                .map(EventMapper::toEventFullDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateRequest) {
+        // 1. Найти событие
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event with id=" + eventId + " was not found"));
+
+        // 2. Проверки перед обновлением
+        AdminEventValidator.validateEventStatusUpdate(event, updateRequest);
+
+        // 3. Обновление данных события
+        if (updateRequest.getTitle() != null) {
+            event.setTitle(updateRequest.getTitle());
+        }
+        if (updateRequest.getAnnotation() != null) {
+            event.setAnnotation(updateRequest.getAnnotation());
+        }
+        if (updateRequest.getDescription() != null) {
+            event.setDescription(updateRequest.getDescription());
+        }
+        if (updateRequest.getEventDate() != null) {
+            event.setEventDate(updateRequest.getEventDate());
+        }
+        if (updateRequest.getCategory() != null) {
+            CategoryDto category =
+                    eventCategoryFeign.getInfoById(Long.valueOf(updateRequest.getCategory())).getBody();
+            event.setCategory(category.getId());
+        }
+        if (updateRequest.getPaid() != null) {
+            event.setPaid(updateRequest.getPaid());
+        }
+        if (updateRequest.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateRequest.getParticipantLimit());
+        }
+        if (updateRequest.getStateAction() != null) {
+            updateEventState(event, updateRequest.getStateAction());
+        }
+
+        // 4. Сохранение изменений
+        event = eventRepository.save(event);
+
+        // 5. Преобразование в DTO и возврат
+        return EventMapper.toEventFullDto(event);
+    }
+
+    private void updateEventState(Event event, EventStateAction stateAction) {
+        if (stateAction.equals(EventStateAction.PUBLISH_EVENT)) {
+            event.setState(StateEvent.PUBLISHED);
+            event.setPublishedOn(LocalDateTime.now());
+        } else if (stateAction.equals(EventStateAction.REJECT_EVENT)) {
+            event.setState(StateEvent.CANCELED);
+        }
+    }
+
+    @Override
+    public EventFullDto getEvent(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event with " + id + " not found"));
+        return EventMapper.toEventFullDto(event);
+    }
+}
