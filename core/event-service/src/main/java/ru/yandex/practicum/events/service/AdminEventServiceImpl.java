@@ -9,12 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import ru.yandex.practicum.events.client.EventCategoryFeign;
-import ru.yandex.practicum.events.client.EventRequestFeign;
+import ru.yandex.practicum.events.client.EventCategoryExceptionClient;
 import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.enums.EventStateAction;
 import ru.yandex.practicum.enums.StateEvent;
+import ru.yandex.practicum.events.client.RequestFeignDefaultClient;
 import ru.yandex.practicum.events.model.QEvent;
 import ru.yandex.practicum.dto.events.UpdateEventAdminRequest;
 import ru.yandex.practicum.events.mapper.EventMapper;
@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
-    private final EventCategoryFeign eventCategoryFeign;
-    private final EventRequestFeign eventRequestFeign;
+    private final EventCategoryExceptionClient eventCategoryExceptionClient;
+    private final RequestFeignDefaultClient requestFeignDefaultClient;
 
     @Override
     public List<EventFullDto> getEvents(
@@ -88,7 +88,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .collect(Collectors.toList());
 
         // Получаем события с количеством подтвержденных запросов
-        Map<Long, Long> counts = eventRequestFeign.getParticipationCounts(eventIds).getBody();
+        Map<Long, Long> counts = requestFeignDefaultClient.getParticipationCounts(eventIds);
 
         List<Event> events = eventsPage.getContent();
         for (Event e : events) {
@@ -126,7 +126,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
         if (updateRequest.getCategory() != null) {
             CategoryDto category =
-                    eventCategoryFeign.getInfoById(Long.valueOf(updateRequest.getCategory())).getBody();
+                    eventCategoryExceptionClient.getInfoById(Long.valueOf(updateRequest.getCategory()));
             event.setCategory(category.getId());
         }
         if (updateRequest.getPaid() != null) {

@@ -9,9 +9,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import ru.yandex.practicum.events.client.EventRequestFeign;
 import ru.yandex.practicum.config.DateConfig;
 import ru.yandex.practicum.controller.ClientController;
+import ru.yandex.practicum.events.client.RequestFeignDefaultClient;
+import ru.yandex.practicum.events.client.RequestFeignExceptionClient;
 import ru.yandex.practicum.events.dto.LookEventDto;
 import ru.yandex.practicum.events.dto.SearchEventsParams;
 import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
@@ -39,15 +40,16 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     private final ClientController clientController;
 
-    private final EventRequestFeign eventRequestFeign;
+    private final RequestFeignDefaultClient requestFeignDefaultClient;
+
+    private final RequestFeignExceptionClient requestFeignExceptionClient;
 
     @Override
     public Event getEvent(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event with " + id + " not found"));
         event.setConfirmedRequests(
-                eventRequestFeign.getParticipationWithStatus(id, ParticipationRequestStatus.CONFIRMED)
-                        .getBody());
+                requestFeignDefaultClient.getParticipationWithStatus(id, ParticipationRequestStatus.CONFIRMED));
         return event;
     }
 
@@ -68,8 +70,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         if (!event.getState().equals(StateEvent.PUBLISHED)) {
             throw new EventNotPublishedException("There is no published event id " + event.getId());
         }
-        Integer confirmedCount = eventRequestFeign
-                .getParticipationWithStatus(id, ParticipationRequestStatus.CONFIRMED).getBody();
+        Integer confirmedCount = requestFeignDefaultClient
+                .getParticipationWithStatus(id, ParticipationRequestStatus.CONFIRMED);
         event.setConfirmedRequests(confirmedCount != null ? confirmedCount : 0);
         event.setViews(getEventsViews(event.getId(), event.getPublishedOn()));
         return EventMapper.toEventFullDto(event);
@@ -84,7 +86,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         if (CollectionUtils.isEmpty(events))
             return events;
 
-        Map<Long, Long> counts = eventRequestFeign.getParticipationCounts(ids).getBody();
+        Map<Long, Long> counts = requestFeignExceptionClient.getParticipationCounts(ids);
         for (Event e : events) {
             e.setConfirmedRequests(Math.toIntExact(counts.getOrDefault(e.getId(), 0L)));
         }
@@ -168,7 +170,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .toList();
-        Map<Long, Long> counts = eventRequestFeign.getParticipationCounts(eventIds).getBody();
+        Map<Long, Long> counts = requestFeignDefaultClient.getParticipationCounts(eventIds);
         for (Event e : events) {
             e.setConfirmedRequests(Math.toIntExact(counts.getOrDefault(e.getId(), 0L)));
         }

@@ -9,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.clients.EventServiceFeign;
-import ru.yandex.practicum.clients.UserServiceFeign;
+import ru.yandex.practicum.clients.EventFeignExceptionClient;
+import ru.yandex.practicum.clients.UserFeignExceptionClient;
 import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.dto.CommentPagedDto;
 import ru.yandex.practicum.mapper.CommentMapper;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService {
 
-    private final UserServiceFeign userServiceFeign;
+    private final UserFeignExceptionClient userFeignExceptionClient;
 
-    private final EventServiceFeign eventServiceFeign;
+    private final EventFeignExceptionClient eventFeignExceptionClient;
 
     private final CommentRepository commentRepository;
 
@@ -47,8 +47,6 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException("Page size must be positive and greater than 0.");
         if (sort == null)
             throw new IllegalArgumentException("Sort parameter cannot be null.");
-
-        eventServiceFeign.getEventInfo(eventId);
 
         Sort sortType = sort == CommentsOrder.NEWEST ?
                 Sort.by("id").descending() : Sort.by("id").ascending();
@@ -72,8 +70,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto addComment(Long userId, CommentDto commentDto) {
-        userServiceFeign.getUserById(userId); //проверка существования юзера
-        eventServiceFeign.getEventInfo(commentDto.getEventId());
+        userFeignExceptionClient.getUserById(userId); //проверка существования юзера
+        eventFeignExceptionClient.getEventInfo(commentDto.getEventId());
         Comment comment = Comment.builder()
                 .userId(userId)
                 .event(commentDto.getEventId())

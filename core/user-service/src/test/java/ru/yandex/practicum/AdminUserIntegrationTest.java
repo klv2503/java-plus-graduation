@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.clients.EventServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.dto.GetUsersDto;
 import ru.yandex.practicum.dto.NewUserRequest;
 import ru.yandex.practicum.dto.user.UserDto;
@@ -27,6 +30,11 @@ public class AdminUserIntegrationTest {
     private AdminUserService adminUserService;
     @Autowired
     private AdminUserRepository adminUserRepository;
+    @MockBean
+    EventServiceFeign eventServiceFeign;
+
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     @Test
     public void createUserTest() {

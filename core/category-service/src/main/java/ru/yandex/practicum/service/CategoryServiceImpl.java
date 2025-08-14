@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import ru.yandex.practicum.clients.EventServiceFeign;
+import ru.yandex.practicum.clients.EventFeignExceptionClient;
 import ru.yandex.practicum.dto.category.CategoryDto;
 import ru.yandex.practicum.dto.GetCategoriesParams;
 import ru.yandex.practicum.dto.category.NewCategoryDto;
@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final NewCategoryMapper newCategoryMapper;
 
-    private final EventServiceFeign eventServiceFeign;
+    private final EventFeignExceptionClient eventFeignExceptionClient;
 
     @Override
     @Transactional
@@ -50,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (!categoryRepository.existsById(id))
             throw new EntityNotFoundException("Category with " + id + " not found");
         List<EventFullDto> events =
-                eventServiceFeign.getEvents(null, null, List.of(id), null, null,0, 10).getBody();
+                eventFeignExceptionClient.getEvents(null, null, List.of(id), null, null,0, 10);
         if (CollectionUtils.isEmpty(events)) {
             categoryRepository.deleteById(id);
         } else {

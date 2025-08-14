@@ -6,9 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.clients.UserFeignExceptionClient;
+import ru.yandex.practicum.events.client.EventCategoryExceptionClient;
 import ru.yandex.practicum.events.client.EventCategoryFeign;
 import ru.yandex.practicum.events.client.EventRequestFeign;
-import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.config.DateConfig;
 import ru.yandex.practicum.dto.request.ChangeRequestStatus;
 import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.dto.events.NewEventDto;
 import ru.yandex.practicum.dto.events.UpdateEventUserRequest;
+import ru.yandex.practicum.events.client.RequestFeignDefaultClient;
 import ru.yandex.practicum.events.mapper.LocationMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.enums.StateEvent;
@@ -38,13 +40,13 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     private final EventRepository eventRepository;
-    private final UserServiceFeign userServiceFeign; //используется для проверки существования юзера
-    private final EventCategoryFeign categoryFeign;
-    private final EventRequestFeign requestFeign;
+    private final UserFeignExceptionClient userFeignExceptionClient;
+    private final EventCategoryExceptionClient eventCategoryExceptionClient;
+    private final RequestFeignDefaultClient requestFeignDefaultClient;
 
     @Override
     public List<EventShortDto> getUsersEvents(GetUserEventsDto dto) {
-        userServiceFeign.getUserById(dto.getUserId());
+        userFeignExceptionClient.getUserById(dto.getUserId());
         PageRequest page = PageRequest.of(dto.getFrom() > 0 ? dto.getFrom() / dto.getSize() : 0, dto.getSize());
         return eventRepository.findAllByInitiatorId(dto.getUserId(), page).stream()
                 .map(EventMapper::toEventShortDto)
@@ -61,7 +63,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Override
     @Transactional
     public EventFullDto addNewEvent(Long userId, NewEventDto eventDto) {
-        userServiceFeign.getUserById(userId);
+        userFeignExceptionClient.getUserById(userId);
         Event event = EventMapper.dtoToEvent(eventDto, userId);
 
         eventRepository.save(event);
@@ -72,7 +74,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Override
     @Transactional
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateDto) {
-        userServiceFeign.getUserById(userId);
+        userFeignExceptionClient.getUserById(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
@@ -90,7 +92,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
         Optional.ofNullable(updateDto.getLocation()).map(LocationMapper::mapDtoToLocation).ifPresent(event::setLocation);
 
         if (updateDto.getCategory() != null) {
-            categoryFeign.getInfoById(updateDto.getCategory()); //проверка существования
+            eventCategoryExceptionClient.getInfoById(updateDto.getCategory()); //проверка существования
             event.setCategory(updateDto.getCategory());
         }
 
@@ -106,7 +108,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     public List<ParticipationRequestDto> getUserEventRequests(Long userId, Long eventId) {
         eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId + " for initiator " + userId));
-        return requestFeign.getRequestList(eventId).getBody();
+        return requestFeignDefaultClient.getRequestList(eventId);
     }
 
     @Override
@@ -115,14 +117,14 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
         //Проверки существования
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event with " + eventId + " not found"));
-        userServiceFeign.getUserById(userId);
+        userFeignExceptionClient.getUserById(userId);
         ChangeRequestStatus changeRequestStatus = ChangeRequestStatus.builder()
                 .event(eventId)
                 .limit(event.getParticipantLimit())
                 .requestIds(request.getRequestIds())
                 .status(ParticipationRequestStatus.valueOf(request.getStatus()))
                 .build();
-        return requestFeign.changeRequestStatuses(changeRequestStatus).getBody();
+        return requestFeignDefaultClient.changeRequestStatuses(changeRequestStatus);
     }
 
     private LocalDateTime parseEventDate(String date) {

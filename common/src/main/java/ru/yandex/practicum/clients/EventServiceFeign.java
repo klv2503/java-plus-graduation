@@ -16,9 +16,6 @@ public interface EventServiceFeign {
     @GetMapping("/admin/events/{eventId}")
     ResponseEntity<EventFullDto> getEventInfo(@PathVariable Long eventId);
 
-    @GetMapping("/{id}/full")
-    ResponseEntity<EventFullDto> getEventAnyStatusWithViews(@PathVariable Long id);
-
     @GetMapping("/admin/events")
     ResponseEntity<List<EventFullDto>> getEvents(
             @RequestParam(required = false) List<Long> users,

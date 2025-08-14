@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.clients.EventServiceFeign;
-import ru.yandex.practicum.clients.UserServiceFeign;
+import ru.yandex.practicum.clients.*;
 import ru.yandex.practicum.dto.request.ChangeRequestStatus;
 import ru.yandex.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.dto.request.ParticipationRequestDto;
@@ -34,14 +33,16 @@ public class ParticipationRequestService {
 
     private final ParticipationRequestRepository requestRepository;
 
-    private final UserServiceFeign userServiceFeign;
+    private final UserFeignDefaultClient userFeignDefaultClient;
 
-    private final EventServiceFeign eventFeign;
+    private final UserFeignExceptionClient userFeignExceptionClient;
+
+    private final EventFeignExceptionClient eventFeignExceptionClient;
 
     private final ParticipationRequestValidator participationRequestValidator;
 
     public List<ParticipationRequestDto> getUserRequests(Long userId) {
-        userServiceFeign.getUserById(userId);
+        userFeignDefaultClient.getUserById(userId);
         return requestRepository.findByUserId(userId)
                 .stream()
                 .map(ParticipationRequestToDtoMapper::mapToDto)
@@ -55,8 +56,8 @@ public class ParticipationRequestService {
 
     @Transactional
     public ParticipationRequestDto addParticipationRequest(Long userId, Long eventId) {
-        UserDto user = userServiceFeign.getUserById(userId).getBody();
-        EventFullDto event = eventFeign.getEventInfo(eventId).getBody();
+        UserDto user = userFeignExceptionClient.getUserById(userId);
+        EventFullDto event = eventFeignExceptionClient.getEventInfo(eventId);
         long confirmedRequestsCount = getConfirmedRequests(eventId);
         log.info("\n✅addParticipationRequest: accepted event{}, count {}", event, confirmedRequestsCount);
 

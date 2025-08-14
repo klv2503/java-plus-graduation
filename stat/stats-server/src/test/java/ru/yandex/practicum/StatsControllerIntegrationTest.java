@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.clients.EventServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
 import ru.yandex.practicum.dto.CreateEndpointHitDto;
 
 import java.time.LocalDateTime;
@@ -27,6 +30,12 @@ public class StatsControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    EventServiceFeign eventServiceFeign;
+
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     @Test
     void saveHit_ShouldReturnCreated() throws Exception {
