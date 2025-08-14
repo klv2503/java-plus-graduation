@@ -64,6 +64,7 @@ public class PrivateUserEventServiceImpl implements PrivateUserEventService {
     @Transactional
     public EventFullDto addNewEvent(Long userId, NewEventDto eventDto) {
         userFeignExceptionClient.getUserById(userId);
+        eventCategoryExceptionClient.getInfoById(eventDto.getCategory());
         Event event = EventMapper.dtoToEvent(eventDto, userId);
 
         eventRepository.save(event);
