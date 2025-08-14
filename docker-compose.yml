@@ -33,14 +33,20 @@ services:
           DROP DATABASE IF EXISTS user_db;
           DROP DATABASE IF EXISTS request_db; 
           DROP DATABASE IF EXISTS event_db; 
+          DROP DATABASE IF EXISTS comment_db; 
+          DROP DATABASE IF EXISTS category_db; 
           create database ewm_db;
           create database ewm_stats;
           create database user_db;
           create database request_db;
           create database event_db;
+          create database comment_db;
+          create database category_db;
           grant all privileges on database ewm_db to "user";
           grant all privileges on database ewm_stats to "user";
           grant all privileges on database user_db to "user";
           grant all privileges on database request_db to "user";
           grant all privileges on database event_db to "user";
+          grant all privileges on database comment_db to "user";
+          grant all privileges on database category_db to "user";
         EOSQL
