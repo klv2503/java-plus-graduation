@@ -9,6 +9,7 @@ spring:
         native:
           searchLocations:
             - classpath:config/{application}
+            - classpath:config/core/{application}
 server:
   port: ${PORT:8888}
 eureka:

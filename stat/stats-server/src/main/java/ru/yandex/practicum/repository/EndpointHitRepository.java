@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.dto.TakeHitsDto;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.model.EndpointHit;
 
 import java.sql.Timestamp;

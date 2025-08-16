@@ -12,15 +12,27 @@ spring:
           enabled: true
 
       routes:
-        - id: main_service_route
-          uri: lb://main-service
+        - id: user_service_route
+          uri: lb://user-service
           predicates:
-            - Path=/**
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
-    org.springframework.http.server.reactive: DEBUG
-    org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
-    reactor.netty.http.client: DEBUG
-    reactor.netty.http.server: DEBUG
+            - Path=/admin/users/**
+
+        - id: request_service_route
+          uri: lb://request-service
+          predicates:
+            - Path=/users/*/requests/**,/requests/**
+
+        - id: event_service_route
+          uri: lb://event-service
+          predicates:
+            - Path=/events/**,/admin/events/**,/users/*/events/**,/compilations/**,/admin/compilations/**
+
+        - id: comment_service_route
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**,/comments/**,/users/{userId}/comments/**
+
+        - id: category_service_route
+          uri: lb://category-service
+          predicates:
+              - Path=/admin/categories/**,/categories/**

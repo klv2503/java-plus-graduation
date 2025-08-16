@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dto.ReadEndpointHitDto;
+import ru.yandex.practicum.clients.EventServiceFeign;
+import ru.yandex.practicum.clients.UserServiceFeign;
+import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.dto.TakeHitsDto;
 import ru.yandex.practicum.service.EndpointHitService;
 
@@ -25,6 +28,12 @@ public class EndpointHitServiceIntegrationTest {
 
     @Autowired
     private EndpointHitService endpointHitService;
+
+    @MockBean
+    EventServiceFeign eventServiceFeign;
+
+    @MockBean
+    UserServiceFeign userServiceFeign;
 
     LocalDateTime start = LocalDateTime.of(2022, 9, 6, 10, 0, 0);
     LocalDateTime end = LocalDateTime.of(2022, 9, 6, 12, 0, 0);
