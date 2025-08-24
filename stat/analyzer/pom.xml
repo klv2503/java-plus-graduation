@@ -154,7 +154,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ru.yandex.practicum.telemetry.collector.Collector</mainClass>
+                            <mainClass>ru.yandex.practicum.analyzer.Analyzer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

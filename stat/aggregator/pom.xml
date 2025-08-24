@@ -125,7 +125,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ru.yandex.practicum.telemetry.collector.Collector</mainClass>
+                            <mainClass>ru.yandex.practicum.aggregator.Aggregator</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
