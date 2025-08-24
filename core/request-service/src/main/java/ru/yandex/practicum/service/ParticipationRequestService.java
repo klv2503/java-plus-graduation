@@ -5,12 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.clients.*;
+import ru.yandex.practicum.clients.EventFeignExceptionClient;
+import ru.yandex.practicum.clients.UserFeignDefaultClient;
+import ru.yandex.practicum.clients.UserFeignExceptionClient;
+import ru.yandex.practicum.controller.UserActionGrpcClient;
 import ru.yandex.practicum.dto.request.ChangeRequestStatus;
 import ru.yandex.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.dto.request.ParticipationRequestDto;
 import ru.yandex.practicum.dto.events.EventFullDto;
+import ru.yandex.practicum.dto.user.UserActionDto;
 import ru.yandex.practicum.dto.user.UserDto;
+import ru.yandex.practicum.enums.ActionType;
 import ru.yandex.practicum.enums.ParticipationRequestStatus;
 import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;
 import ru.yandex.practicum.mapper.ParticipationRequestToDtoMapper;
@@ -18,6 +23,7 @@ import ru.yandex.practicum.model.ParticipationRequest;
 import ru.yandex.practicum.repository.ParticipationRequestRepository;
 import ru.yandex.practicum.validation.ParticipationRequestValidator;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +38,8 @@ import java.util.stream.Collectors;
 public class ParticipationRequestService {
 
     private final ParticipationRequestRepository requestRepository;
+
+    private final UserActionGrpcClient userActionGrpcClient;
 
     private final UserFeignDefaultClient userFeignDefaultClient;
 
@@ -77,8 +85,14 @@ public class ParticipationRequestService {
         }
         request.setCreated(LocalDateTime.now());
 
-
         ParticipationRequest savedRequest = requestRepository.save(request);
+        UserActionDto userActionDto = UserActionDto.builder()
+                .userId(userId)
+                .eventId(eventId)
+                .actionType(ActionType.REGISTER)
+                .timestamp(Instant.now())
+                .build();
+        userActionGrpcClient.sendUserAction(userActionDto);
         return ParticipationRequestToDtoMapper.mapToDto(savedRequest);
     }
 

@@ -47,7 +47,7 @@ public class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .publishedOn(LocalDateTime.now())
                 .state(StateEvent.PENDING)
-                .views(0)
+                .rating(0.0)
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class EventMapper {
                 .initiator(event.getInitiatorId())
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views((event.getViews() == null) ? 0 : event.getViews())
+                .rating((event.getRating() == null) ? 0 : event.getRating())
                 .createdOn(event.getCreatedOn().format(DateConfig.FORMATTER))
                 .description(event.getDescription())
                 .location(LocationMapper.mapLocationToDto(event.getLocation()))
@@ -86,7 +86,7 @@ public class EventMapper {
                 .initiator(event.getInitiatorId())
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views((event.getViews() == null) ? 0 : event.getViews())
+                .rating((event.getRating() == null) ? 0 : event.getRating())
                 .build();
     }
 

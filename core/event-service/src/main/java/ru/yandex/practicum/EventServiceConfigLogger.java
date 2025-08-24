@@ -22,6 +22,7 @@ public class EventServiceConfigLogger implements ApplicationListener<WebServerIn
                                     RequestMappingHandlerMapping mapping) {
         this.mapping = mapping;
     }
+
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
         int actualPort = event.getWebServer().getPort();

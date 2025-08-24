@@ -1,0 +1,4 @@
+@namespace("ru.practicum.ewm.stats.avro")
+protocol EventProtocol {
+
+}

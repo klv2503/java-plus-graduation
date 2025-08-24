@@ -13,6 +13,8 @@ public class LookEventDto {
 
     private Long id;
 
+    private Long userId;
+
     private String uri;
 
     private String ip;

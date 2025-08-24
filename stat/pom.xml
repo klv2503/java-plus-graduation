@@ -14,11 +14,20 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>stats-dto</module>
         <module>stats-client</module>
-        <module>stats-server</module>
+        <module>aggregator</module>
+        <module>analyzer</module>
+        <module>collector</module>
+        <module>serialization</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+    
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>

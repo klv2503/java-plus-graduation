@@ -1,10 +1,10 @@
 package ru.yandex.practicum.clients;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.user.UserDto;
+import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +18,6 @@ public class UserFeignExceptionClient {
     }
 
     public UserDto getInfoByIdFallback(Long userId, Throwable t) {
-        throw new EntityNotFoundException("User with " + userId + " not found");
+        throw new AccessDeniedException("Operation is temporally not allowed.");
     }
 }
