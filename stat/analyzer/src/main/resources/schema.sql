@@ -18,6 +18,6 @@ CREATE TABLE IF NOT EXISTS similarities(
 event_a BIGINT NOT NULL,
 event_b BIGINT NOT NULL,
 score DOUBLE PRECISION,
-timestamp_ms TIMESTAMP WITHOUT TIME ZONE,
+timestamp_ms TIMESTAMP,
 PRIMARY KEY (event_a, event_b)
 );
