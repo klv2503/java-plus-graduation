@@ -1,15 +1,10 @@
 package ru.yandex.practicum.aggregator.cache;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.aggregator.model.Interaction;
-import ru.yandex.practicum.aggregator.model.Similarity;
-import ru.yandex.practicum.aggregator.repository.EventSumsRepository;
-import ru.yandex.practicum.aggregator.repository.SimilarityRepository;
-import ru.yandex.practicum.aggregator.repository.InteractionRepository;
+import ru.yandex.practicum.aggregator.dto.InteractionDto;
 
 import java.util.*;
 
@@ -18,13 +13,6 @@ import java.util.*;
 @RequiredArgsConstructor
 @Data
 public class InteractionCache {
-
-    private final InteractionRepository interactionRepository;
-
-    private final SimilarityRepository similarityRepository;
-
-    private final EventSumsRepository eventSumsRepository;
-
     // userId -> (eventId -> weight)
     private final Map<Long, Map<Long, Double>> userEventWeights = new HashMap<>();
 
@@ -33,38 +21,6 @@ public class InteractionCache {
 
     // Верхнетреугольная матрица: firstEvent < secondEvent -> S_min
     private final Map<Long, Map<Long, Double>> sMin = new HashMap<>();
-
-
-    @PostConstruct
-    public void init() {
-        log.info("Initializing InteractionCache...");
-        List<Interaction> all = interactionRepository.findAll();
-
-        for (Interaction interaction : all) {
-            long userId = interaction.getId().getUserId();
-            long eventId = interaction.getId().getEventId();
-            double weight = interaction.getWeight();
-
-            Map<Long, Double> userWeights = userEventWeights
-                    .computeIfAbsent(userId, k -> new HashMap<>());
-            userWeights.put(eventId, weight);
-        }
-        eventSumsRepository.findAll().forEach(sum ->
-                eventSums.put(sum.getEventId(), sum.getScore())
-        );
-
-        List<Similarity> similarities = similarityRepository.findAll();
-        for (Similarity similarity : similarities) {
-            long first = similarity.getId().getEventA();
-            long second = similarity.getId().getEventB();
-            double score = similarity.getScore();
-
-            sMin.computeIfAbsent(first, k -> new HashMap<>())
-                    .put(second, score);
-        }
-        log.info("Loaded {} users, {} event sums and {} similarities into cache",
-                userEventWeights.size(), eventSums.size(), similarities.size());
-    }
 
     public double getEventSum(long eventId) {
         return eventSums.getOrDefault(eventId, 0.0);
@@ -97,9 +53,9 @@ public class InteractionCache {
         return result;
     }
 
-    public boolean addInteraction(Interaction interaction) {
-        long userId = interaction.getId().getUserId();
-        long eventId = interaction.getId().getEventId();
+    public boolean addInteraction(InteractionDto interaction) {
+        long userId = interaction.getUserId();
+        long eventId = interaction.getEventId();
         double newWeight = interaction.getWeight();
 
         Map<Long, Double> eventMap = userEventWeights.computeIfAbsent(userId, k -> new HashMap<>());
@@ -156,6 +112,5 @@ public class InteractionCache {
         long second = Math.max(a, b);
         return sMin.getOrDefault(first, Map.of()).getOrDefault(second, 0.0);
     }
-
 
 }

@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.yandex.practicum.aggregator.cache.InteractionCache;
-import ru.yandex.practicum.aggregator.model.Interaction;
-import ru.yandex.practicum.aggregator.model.InteractionId;
+import ru.yandex.practicum.aggregator.dto.InteractionDto;
 import ru.yandex.practicum.enums.ActionType;
 
 import java.time.Instant;
@@ -23,17 +22,15 @@ public class UserActionHandler {
     public List<EventSimilarityAvro> userActionHandle(UserActionAvro userActionAvro) {
 
         Instant requestTime = userActionAvro.getTimestamp();
-        Interaction newInteraction = Interaction.builder()
-                .id(InteractionId.builder()
-                        .userId(userActionAvro.getUserId())
-                        .eventId(userActionAvro.getEventId())
-                        .build())
+        InteractionDto newInteraction = InteractionDto.builder()
+                .userId(userActionAvro.getUserId())
+                .eventId(userActionAvro.getEventId())
                 .weight(ActionType.fromAvro(userActionAvro.getActionType()).getWeight())
                 .build();
         return cache.addInteraction(newInteraction) ?
-                computeSimilarities(newInteraction.getId().getEventId(),
+                computeSimilarities(newInteraction.getEventId(),
                         requestTime,
-                        newInteraction.getId().getUserId())
+                        newInteraction.getUserId())
                 : List.of();
     }
 

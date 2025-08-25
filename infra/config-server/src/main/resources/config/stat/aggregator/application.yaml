@@ -1,22 +1,10 @@
 spring:
   application:
     name: aggregator
-  datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:6543/ewm_stats}
-    username: ${DATABASE_USERNAME:user}
-    password: ${DATABASE_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: none
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
 server:
   port: 0
 
