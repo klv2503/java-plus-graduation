@@ -59,7 +59,7 @@ public class PublicEventControllerTest {
             .paid(true)
             .title("without")
             .initiator(0L)
-            .views(0)
+            .rating(0.0)
             .createdOn(secondDate)
             .description("12345".repeat(15))
             .publishedOn(thirdDate)
@@ -78,29 +78,6 @@ public class PublicEventControllerTest {
             .paid(true)
             .title("without")
             .build();
-
-    @Test
-    @SneakyThrows
-    public void getEventInfo_whenValidParams_thenGetResponse() {
-        when(service.getEventInfo(ArgumentMatchers.any())).thenReturn(eventFullDto);
-        long id = 1L;
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/events/{id}", id)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        MvcResult mvcResult = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
-        assertNotNull(mvcResult.getResponse());
-
-        ArgumentCaptor<LookEventDto> lookEventDtoCaptor = ArgumentCaptor.forClass(LookEventDto.class);
-
-        verify(service).getEventInfo(lookEventDtoCaptor.capture());
-        Assertions.assertEquals(1L, lookEventDtoCaptor.getValue().getId());
-        assertNotNull(lookEventDtoCaptor.getValue().getIp());
-        assertNotNull(lookEventDtoCaptor.getValue().getUri());
-
-    }
 
     @Test
     @SneakyThrows

@@ -61,5 +61,5 @@ public class Event {
     private StateEvent state;
 
     @Transient
-    private Integer views;
+    private Double rating;
 }

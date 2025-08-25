@@ -1,10 +1,8 @@
 package ru.yandex.practicum.clients;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
 
@@ -23,7 +21,7 @@ public class EventFeignExceptionClient {
     }
 
     public EventFullDto getEventInfoFallback(Long eventId, Throwable t) {
-        throw new EntityNotFoundException("Event with " + eventId + " not found");
+        throw new AccessDeniedException("Operation temporally not allowed");
     }
 
     @CircuitBreaker(name = "categoryService", fallbackMethod = "getEventsFallback")
