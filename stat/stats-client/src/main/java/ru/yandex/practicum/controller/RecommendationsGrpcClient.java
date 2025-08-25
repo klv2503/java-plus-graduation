@@ -2,7 +2,7 @@ package ru.yandex.practicum.controller;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.grpc.stat.recommendation.*;
+import stats.service.dashboard.*;
 
 import java.util.*;
 import java.util.stream.Stream;

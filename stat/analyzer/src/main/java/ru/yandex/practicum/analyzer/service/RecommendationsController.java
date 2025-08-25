@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.yandex.practicum.analyzer.model.EventSums;
-import ru.yandex.practicum.grpc.stat.recommendation.*;
+import stats.service.dashboard.*;
 
 import java.util.List;
 import java.util.Map;

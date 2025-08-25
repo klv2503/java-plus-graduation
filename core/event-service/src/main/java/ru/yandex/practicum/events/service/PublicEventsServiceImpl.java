@@ -31,7 +31,7 @@ import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.QEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
-import ru.yandex.practicum.grpc.stat.recommendation.RecommendedEventProto;
+import stats.service.dashboard.RecommendedEventProto;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

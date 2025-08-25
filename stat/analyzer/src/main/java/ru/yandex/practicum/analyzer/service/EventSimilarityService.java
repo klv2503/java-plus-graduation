@@ -8,7 +8,7 @@ import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.yandex.practicum.analyzer.model.similarity.Similarity;
 import ru.yandex.practicum.analyzer.model.similarity.SimilarityId;
 import ru.yandex.practicum.analyzer.repository.SimilarityRepository;
-import ru.yandex.practicum.grpc.stat.recommendation.RecommendedEventProto;
+import stats.service.dashboard.RecommendedEventProto;
 
 import java.util.*;
 
