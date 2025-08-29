@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: aggregator
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+server:
+  port: 0
+
+logging:
+  level:
+    ru.yandex.practicum.aggregator: TRACE
+    org:
+      springframework: ERROR
+      apache.kafka: WARN
+
+aggregator:
+  kafka:
+    producer:
+      properties:
+        bootstrap.servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        key.serializer: org.apache.kafka.common.serialization.StringSerializer
+        value.serializer: ru.yandex.practicum.kafka.serializer.GeneralAvroSerializer
+      topics:
+        - "stats.events-similarity.v1"
+    consumer:
+      properties:
+        bootstrap.servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        group.id: "stats.aggregator"
+        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value.deserializer: ru.yandex.practicum.kafka.deserializer.UserActionAvroDeserializer
+        auto.offset.reset: earliest
+      topics:
+        - "stats.user-actions.v1"
+      poll-timeout: 100ms

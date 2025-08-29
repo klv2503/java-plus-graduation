@@ -94,7 +94,7 @@ public class AdminEventIntegrationTest {
         pendingEvent.setPaid(false);
         pendingEvent.setLocation(location);
         pendingEvent.setState(StateEvent.PENDING);
-        pendingEvent.setViews(0);
+        pendingEvent.setRating(0.0);
         pendingEvent.setInitiatorId(testUser.getId());
         pendingEvent.setCreatedOn(LocalDateTime.now());
         pendingEvent = eventRepository.save(this.pendingEvent);

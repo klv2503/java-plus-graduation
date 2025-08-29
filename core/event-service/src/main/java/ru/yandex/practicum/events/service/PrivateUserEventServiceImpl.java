@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.clients.UserFeignExceptionClient;
 import ru.yandex.practicum.events.client.EventCategoryExceptionClient;
-import ru.yandex.practicum.events.client.EventCategoryFeign;
-import ru.yandex.practicum.events.client.EventRequestFeign;
 import ru.yandex.practicum.config.DateConfig;
 import ru.yandex.practicum.dto.request.ChangeRequestStatus;
 import ru.yandex.practicum.errors.exceptions.ForbiddenActionException;

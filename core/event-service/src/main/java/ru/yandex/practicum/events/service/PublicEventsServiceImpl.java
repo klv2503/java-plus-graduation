@@ -9,13 +9,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import ru.yandex.practicum.clients.UserFeignExceptionClient;
 import ru.yandex.practicum.config.DateConfig;
-import ru.yandex.practicum.controller.ClientController;
+import ru.yandex.practicum.controller.RecommendationsGrpcClient;
+import ru.yandex.practicum.controller.UserActionGrpcClient;
+import ru.yandex.practicum.dto.request.ParticipationRequestDto;
+import ru.yandex.practicum.dto.user.UserActionDto;
+import ru.yandex.practicum.dto.user.UserDto;
+import ru.yandex.practicum.enums.ActionType;
+import ru.yandex.practicum.errors.exceptions.AccessDeniedException;
 import ru.yandex.practicum.events.client.RequestFeignDefaultClient;
 import ru.yandex.practicum.events.client.RequestFeignExceptionClient;
 import ru.yandex.practicum.events.dto.LookEventDto;
 import ru.yandex.practicum.events.dto.SearchEventsParams;
-import ru.yandex.practicum.dto.endpoint.ReadEndpointHitDto;
 import ru.yandex.practicum.dto.events.EventFullDto;
 import ru.yandex.practicum.dto.events.EventShortDto;
 import ru.yandex.practicum.enums.ParticipationRequestStatus;
@@ -25,7 +31,9 @@ import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.model.QEvent;
 import ru.yandex.practicum.events.repository.EventRepository;
+import stats.service.dashboard.RecommendedEventProto;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,7 +46,11 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     private final EventRepository eventRepository;
 
-    private final ClientController clientController;
+    private final UserActionGrpcClient userActionGrpcClient;
+
+    private final RecommendationsGrpcClient recommendationsGrpcClient;
+
+    private final UserFeignExceptionClient userFeignExceptionClient;
 
     private final RequestFeignDefaultClient requestFeignDefaultClient;
 
@@ -54,16 +66,15 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     }
 
     @Override
-    public int getEventsViews(long id, LocalDateTime publishedOn) {
-        List<String> uris = List.of("/events/" + id);
-        List<ReadEndpointHitDto> res = clientController.getHits(publishedOn.format(DateConfig.FORMATTER),
-                LocalDateTime.now().format(DateConfig.FORMATTER), uris, true);
-        log.info("\nPublicEventsServiceImpl.getEventsViews: res {}", res);
-        return (CollectionUtils.isEmpty(res)) ? 0 : res.getFirst().getHits();
+    public double getEventsRating(long id) {
+        return recommendationsGrpcClient.getInteractionsCount(List.of(id))
+                .findFirst()
+                .map(RecommendedEventProto::getScore)
+                .orElse(0.0);
     }
 
     @Override
-    public EventFullDto getEventAnyStatusWithViews(Long id) {
+    public EventFullDto getEventAnyStatusWithRating(Long id) {
         //Attention: this method works without saving views!
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event with " + id + " not found"));
@@ -73,7 +84,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         Integer confirmedCount = requestFeignDefaultClient
                 .getParticipationWithStatus(id, ParticipationRequestStatus.CONFIRMED);
         event.setConfirmedRequests(confirmedCount != null ? confirmedCount : 0);
-        event.setViews(getEventsViews(event.getId(), event.getPublishedOn()));
+        event.setRating(getEventsRating(event.getId()));
         return EventMapper.toEventFullDto(event);
     }
 
@@ -87,22 +98,16 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             return events;
 
         Map<Long, Long> counts = requestFeignExceptionClient.getParticipationCounts(ids);
+        Map<Long, Double> recommendationsMap =
+                recommendationsGrpcClient.getInteractionsCount(ids)
+                        .collect(Collectors.toMap(
+                                RecommendedEventProto::getEventId,
+                                RecommendedEventProto::getScore
+                        ));
         for (Event e : events) {
             e.setConfirmedRequests(Math.toIntExact(counts.getOrDefault(e.getId(), 0L)));
+            e.setRating(recommendationsMap.getOrDefault(e.getId(), 0.0));
         }
-        LocalDateTime start = events.stream()
-                .map(Event::getPublishedOn)
-                .min(LocalDateTime::compareTo)
-                .orElseThrow(() ->
-                        new RuntimeException("Internal server error during execution PublicEventsServiceImpl"));
-        List<String> uris = events.stream()
-                .map(event -> "/event/" + event.getId())
-                .toList();
-
-        List<ReadEndpointHitDto> acceptedList = clientController.getHits(start.format(DateConfig.FORMATTER),
-                LocalDateTime.now().format(DateConfig.FORMATTER), uris, true);
-        // Заносим значения views в список events
-        viewsToEvents(acceptedList, events);
         return events;
     }
 
@@ -114,11 +119,15 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         if (!event.getState().equals(StateEvent.PUBLISHED)) {
             throw new EventNotPublishedException("There is no published event id " + event.getId());
         }
-        // Получаем views
-        event.setViews(getEventsViews(event.getId(), event.getPublishedOn()));
-        //Имеем новый просмотр - сохраняем его
-        clientController.saveView(lookEventDto.getIp(), lookEventDto.getUri());
 
+        UserActionDto userAction = UserActionDto.builder()
+                .userId(lookEventDto.getUserId())
+                .eventId(event.getId())
+                .actionType(ActionType.VIEW)
+                .timestamp(Instant.now())
+                .build();
+
+        userActionGrpcClient.sendUserAction(userAction);
         return EventMapper.toEventFullDto(event);
     }
 
@@ -163,14 +172,15 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         int page = searchEventsParams.getFrom() / searchEventsParams.getSize();
         int size = searchEventsParams.getSize();
         List<Event> events = eventRepository.findAll(builder, PageRequest.of(page, size)).getContent();
+
         if (events.isEmpty()) {
-            clientController.saveView(lookEventDto.getIp(), "/events");
             return List.of();
         }
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .toList();
         Map<Long, Long> counts = requestFeignDefaultClient.getParticipationCounts(eventIds);
+
         for (Event e : events) {
             e.setConfirmedRequests(Math.toIntExact(counts.getOrDefault(e.getId(), 0L)));
         }
@@ -180,54 +190,81 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                     .collect(Collectors.toList());
         }
         log.info("PublicEventsServiceImpl.getFilteredEvents: events {}", events);
+        Map<Long, Double> recommendationsMap =
+                recommendationsGrpcClient.getInteractionsCount(eventIds)
+                        .collect(Collectors.toMap(
+                                RecommendedEventProto::getEventId,
+                                RecommendedEventProto::getScore
+                        ));
+        for (Event e : events) {
+            e.setRating(recommendationsMap.getOrDefault(e.getId(), 0.0));
+        }
         // Если не было установлено rangeEnd, устанавливаем
         if (searchEventsParams.getRangeEnd() == null) {
             searchEventsParams.setRangeEnd(LocalDateTime.now().format(DateConfig.FORMATTER));
         }
-        // Формируем список uris
-        List<String> uris = new ArrayList<>();
-        for (Event e : events) {
-            uris.add("/events/" + e.getId());
-        }
-
-        List<ReadEndpointHitDto> acceptedList = clientController.getHits(searchEventsParams.getRangeStart(),
-                searchEventsParams.getRangeEnd(), uris, true);
-        viewsToEvents(acceptedList, events);
-
         // Сортировка. Для начала проверяем значение параметра сортировки
         String sortParam;
         if (Strings.isEmpty(searchEventsParams.getSort())) {
-            sortParam = "VIEWS";
+            sortParam = "RATING";
         } else {
             sortParam = searchEventsParams.getSort().toUpperCase();
         }
         // Дополняем сортировкой
-        List<Event> sortedEvents = new ArrayList<>();
+        List<Event> sortedEvents;
         if (sortParam.equalsIgnoreCase("EVENT_DATE")) {
             sortedEvents = events.stream()
                     .sorted(Comparator.comparing(Event::getEventDate)) // Сортируем по eventDate
                     .toList();
         } else {
             sortedEvents = events.stream()
-                    .sorted(Comparator.comparingInt(Event::getViews).reversed()) // Сортируем по views
+                    .sorted(Comparator.comparingDouble(Event::getRating).reversed()) // Сортируем по rating
                     .toList();
         }
-
-        uris.add("/events");
-        clientController.saveHitsGroup(uris, lookEventDto.getIp());
         log.info("\n Final list {}", sortedEvents);
         return EventMapper.toListEventShortDto(sortedEvents);
     }
 
-    public void viewsToEvents(List<ReadEndpointHitDto> viewsList, List<Event> events) {
-        // Заносим значения views в список events
-        Map<Integer, Integer> workMap = new HashMap<>();
-        for (ReadEndpointHitDto r : viewsList) {
-            int i = Integer.parseInt(r.getUri().substring(r.getUri().lastIndexOf("/") + 1));
-            workMap.put(i, r.getHits());
-        }
-        for (Event e : events) {
-            e.setViews(workMap.getOrDefault(e.getId(), 0));
-        }
+    @Override
+    public List<EventShortDto> getRecommendations4User(Long userId, int quant) {
+        Map<Long, Double> recommendationsMap =
+                recommendationsGrpcClient.getRecommendationsForUser(userId, quant)
+                        .collect(Collectors.toMap(
+                                RecommendedEventProto::getEventId,
+                                RecommendedEventProto::getScore
+                        ));
+        List<Event> events = eventRepository.findByIdIn(
+                new ArrayList<>(recommendationsMap.keySet())
+        );
+        events.forEach(e -> e.setRating(recommendationsMap.get(e.getId())));
+        events.sort(Comparator.comparingDouble(Event::getRating).reversed());
+        return EventMapper.toListEventShortDto(events);
     }
+
+    @Override
+    public void putUsersLike(Long eventId, Long userId) {
+        UserDto user = userFeignExceptionClient.getUserById(userId);
+        Event event = getEvent(eventId);
+        if (event.getEventDate().isAfter(LocalDateTime.now())) {
+            throw new AccessDeniedException("Like before date of event is prohibited");
+        }
+        List<ParticipationRequestDto> requests = requestFeignDefaultClient.getRequestList(eventId);
+        ParticipationRequestDto dto = requests.stream()
+                .filter(p -> p.getRequester().equals(userId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User " + userId + "was not a participant - operation is prohibited"));
+
+        if (dto.getStatus() != ParticipationRequestStatus.CONFIRMED) {
+            throw new IllegalArgumentException("User " + userId + "was not a participant - operation is prohibited");
+        }
+        UserActionDto userActionDto = UserActionDto.builder()
+                .userId(userId)
+                .eventId(eventId)
+                .actionType(ActionType.LIKE)
+                .timestamp(Instant.now())
+                .build();
+        userActionGrpcClient.sendUserAction(userActionDto);
+    }
+
 }

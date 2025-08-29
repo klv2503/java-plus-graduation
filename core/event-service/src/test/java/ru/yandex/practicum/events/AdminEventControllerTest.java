@@ -48,7 +48,7 @@ public class AdminEventControllerTest {
             .paid(false)
             .participantLimit(100)
             .confirmedRequests(10)
-            .views(200)
+            .rating(0.5)
             .state(StateEvent.PENDING)
             .createdOn(LocalDateTime.now().toString())
             .publishedOn(LocalDateTime.now().plusHours(1).toString())
@@ -81,7 +81,7 @@ public class AdminEventControllerTest {
                 .andExpect(jsonPath("$.[0].paid", is(eventDto.isPaid())))
                 .andExpect(jsonPath("$.[0].participantLimit", is(eventDto.getParticipantLimit())))
                 .andExpect(jsonPath("$.[0].confirmedRequests", is(eventDto.getConfirmedRequests())))
-                .andExpect(jsonPath("$.[0].views", is(eventDto.getViews())))
+                .andExpect(jsonPath("$.[0].rating", is(eventDto.getRating())))
                 .andExpect(jsonPath("$.[0].state", is(eventDto.getState().toString())))
                 .andExpect(jsonPath("$.[0].createdOn", is(eventDto.getCreatedOn())))
                 .andExpect(jsonPath("$.[0].publishedOn", is(eventDto.getPublishedOn())));
@@ -107,7 +107,7 @@ public class AdminEventControllerTest {
                 .andExpect(jsonPath("$.paid", is(eventDto.isPaid())))
                 .andExpect(jsonPath("$.participantLimit", is(eventDto.getParticipantLimit())))
                 .andExpect(jsonPath("$.confirmedRequests", is(eventDto.getConfirmedRequests())))
-                .andExpect(jsonPath("$.views", is(eventDto.getViews())))
+                .andExpect(jsonPath("$.rating", is(eventDto.getRating())))
                 .andExpect(jsonPath("$.state", is(eventDto.getState().toString())))
                 .andExpect(jsonPath("$.createdOn", is(eventDto.getCreatedOn())))
                 .andExpect(jsonPath("$.publishedOn", is(eventDto.getPublishedOn())));

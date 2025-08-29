@@ -1,0 +1,23 @@
+DROP TABLE IF EXISTS interactions;
+DROP TABLE IF EXISTS sum_weights;
+DROP TABLE IF EXISTS similarities;
+
+CREATE TABLE IF NOT EXISTS interactions(
+user_id BIGINT NOT NULL,
+event_id BIGINT NOT NULL,
+weight DOUBLE PRECISION NOT NULL,
+PRIMARY KEY (user_id, event_id)
+);
+
+CREATE TABLE IF NOT EXISTS sum_weights(
+event_id BIGINT NOT NULL PRIMARY KEY,
+score DOUBLE PRECISION
+);
+
+CREATE TABLE IF NOT EXISTS similarities(
+event_a BIGINT NOT NULL,
+event_b BIGINT NOT NULL,
+score DOUBLE PRECISION,
+timestamp_ms TIMESTAMP,
+PRIMARY KEY (event_a, event_b)
+);

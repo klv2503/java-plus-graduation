@@ -45,6 +45,7 @@ public class PublicEventController {
         String encodedUri = URLEncoder.encode(request.getRequestURI(), StandardCharsets.UTF_8);
         LookEventDto lookEventDto = LookEventDto.builder()
                 .id(null)
+                .userId(null)
                 .uri(encodedUri)
                 .ip(request.getRemoteAddr())
                 .build();
@@ -57,12 +58,14 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventFullDto> getEventInfo(@PathVariable
+    public ResponseEntity<EventFullDto> getEventInfo(@RequestHeader("X-EWM-USER-ID") long userId,
+                                                     @PathVariable
                                                      @Min(value = 1, message = "ID must be positive") Long id,
                                                      HttpServletRequest request) {
         String encodedUri = request.getRequestURI();
         LookEventDto lookEventDto = LookEventDto.builder()
                 .id(id)
+                .userId(userId)
                 .uri(encodedUri)
                 .ip(request.getRemoteAddr())
                 .build();
@@ -72,8 +75,20 @@ public class PublicEventController {
         return ResponseEntity.status(HttpStatus.OK).body(eventFullDto);
     }
 
+    @GetMapping("/recommendations")
+    public ResponseEntity<List<EventShortDto>> getRecommendations4User(@RequestHeader("X-EWM-USER-ID") long userId,
+                                                                       @RequestParam int quant) {
+        return ResponseEntity.ok(publicEventsService.getRecommendations4User(userId, quant));
+    }
+
+    @PutMapping("/{eventId}/like")
+    public ResponseEntity<Void> putUsersLike(@PathVariable Long eventId, @RequestHeader("X-EWM-USER-ID") Long userId) {
+        publicEventsService.putUsersLike(eventId, userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{id}/full")
     public ResponseEntity<EventFullDto> getEventAnyStatusWithViews(@PathVariable @NotNull @Positive Long id) {
-        return ResponseEntity.ok(publicEventsService.getEventAnyStatusWithViews(id));
+        return ResponseEntity.ok(publicEventsService.getEventAnyStatusWithRating(id));
     }
 }
