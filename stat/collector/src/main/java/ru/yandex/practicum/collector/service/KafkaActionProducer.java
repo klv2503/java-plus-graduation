@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.collector.configuration.UserActionProducerProperties;
 import ru.yandex.practicum.kafka.KafkaClient;
-import ru.yandex.practicum.collector.configuration.UserActionProducerConfig;
 
 @Service
 @Getter
@@ -15,7 +15,7 @@ import ru.yandex.practicum.collector.configuration.UserActionProducerConfig;
 @Slf4j
 public class KafkaActionProducer {
 
-    private final UserActionProducerConfig config;
+    private final UserActionProducerProperties config;
     private final KafkaClient client;
 
     public void sendUserAction(String topic, SpecificRecordBase userAction) {
@@ -25,6 +25,6 @@ public class KafkaActionProducer {
             throw new IllegalArgumentException("Unknown topic: " + topic);
         }
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topic, null, userAction);
-        client.getProducer(config.getProducer().getProperties()).send(record);
+        client.getProducer(config.getProperties()).send(record);
     }
 }
