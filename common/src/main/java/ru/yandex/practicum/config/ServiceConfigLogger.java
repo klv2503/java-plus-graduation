@@ -1,6 +1,5 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.config;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,14 +10,17 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 @Component
 @Slf4j
-public class EventServiceConfigLogger implements ApplicationListener<WebServerInitializedEvent> {
+public class ServiceConfigLogger implements ApplicationListener<WebServerInitializedEvent> {
 
-    @Value("${spring.datasource.url}")
+    @Value("${spring.application.name:Application}")
+    private String serviceName;
+
+    @Value("${spring.datasource.url:unknown}")
     private String dbUrl;
 
     private final RequestMappingHandlerMapping mapping;
 
-    public EventServiceConfigLogger(@Qualifier("requestMappingHandlerMapping")
+    public ServiceConfigLogger(@Qualifier("requestMappingHandlerMapping")
                                     RequestMappingHandlerMapping mapping) {
         this.mapping = mapping;
     }
@@ -26,18 +28,14 @@ public class EventServiceConfigLogger implements ApplicationListener<WebServerIn
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
         int actualPort = event.getWebServer().getPort();
-        log.info("✅ Application started on port: {}", actualPort);
-    }
-
-    @PostConstruct
-    public void logDatabaseUrl() {
-        log.info("✅ Connected to DB: {}", dbUrl);
-    }
-
-    @PostConstruct
-    public void printMappings() {
+        log.info("✅ {} started on port: {}", serviceName, actualPort);
+        log.info("✅ {} connected to DB: {}", serviceName, dbUrl);
         log.info("=== All request mappings ===");
-        mapping.getHandlerMethods().forEach((key, value) ->
-                log.info("{} -> {}", key, value));
+        mapping.getHandlerMethods().forEach((key, value) -> {
+            if (!value.getBeanType().getName().startsWith("org.springframework.boot")) {
+                log.info("{} -> {}", key, value);
+            }
+        });
     }
+
 }
