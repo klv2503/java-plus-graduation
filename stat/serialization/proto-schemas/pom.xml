@@ -52,6 +52,7 @@
                 <version>3.8.0</version>
                 <configuration>
                     <protocVersion>${protobuf.version}</protocVersion>
+                    <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
 
                     <binaryMavenPlugins>
                         <binaryMavenPlugin>
